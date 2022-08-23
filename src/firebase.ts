@@ -94,7 +94,48 @@ export const createDocument = async (collection: string, documenID: string, subC
 
   return
   
-}   
+};
+
+/**
+ * Get a MERCHANT document in primary DB -- NON SUBCOLLECTION
+ * 
+ * @param shop 
+ * @returns 
+ */
+ export const getDocumentByShop = async (
+    shop: string,
+) => {
+  let MERCHANT_ID = "";
+  const docs = await db.collection("merchants").where("shop", "==", shop).get();
+
+  console.log(docs.size);
+
+  await docs.forEach((d)=> {console.log(d.data()); MERCHANT_ID = d.id;})
+
+  return MERCHANT_ID;
+}
+
+/**
+ * Get a MERCHANT/USER document from primary DB -- SUBCOLLECTION
+ * 
+ * @param user_id 
+ * @param merchant_uuid 
+ * @returns 
+ */
+ export const getUserDocumentByUserID = async (
+  user_id: string,
+  merchant_uuid: string,
+) => {
+let USER_ID = "";
+const docs = await db.collection("merchants").doc(merchant_uuid).collection("users").where("id", "==", user_id).get();
+
+console.log(docs.size);
+
+await docs.forEach((d)=> {console.log(d.data()); USER_ID = d.id;})
+
+return USER_ID;
+}
+
 
 // TODO: Initialize Storage Bucket
 // TODO: Export Storage Bucket 

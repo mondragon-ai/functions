@@ -1,7 +1,9 @@
 import * as express from "express";
-import * as functions from "firebase-functions";
-import {createDocument} from "../../firebase";
+// import * as functions from "firebase-functions";
+// import {createDocument} from "../../firebase";
 import * as crypto from "crypto";
+import { addNewUserToPrimaryDB } from "../helpers/users";
+import { updateDocument } from "../../firebase";
 /**
  * Merhcant API Routes 
  * @param app 
@@ -21,9 +23,8 @@ export const usersRoutes = async (app: express.Express, db: FirebaseFirestore.Fi
    * @param last_name
    */
   app.post("/users/create", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likley Internal -- Check Logs. "
     const FB_UUID: string = "QilaBD5FGdnF9iX5K9k7"
-    let user_list: any[] = [
+    let user_data: {} = 
       {
         id: crypto.randomUUID(),
         first_name: "Obi",
@@ -31,20 +32,46 @@ export const usersRoutes = async (app: express.Express, db: FirebaseFirestore.Fi
         name: "Obi Kanobi",
         scopes: "all",
         password: "sha256(passwrod + email)"
-
       }
-    ]
+
+    const result = await addNewUserToPrimaryDB(FB_UUID, user_data);
+    res.status(result.status).json(result.text);
+
+  });
+
+  /**
+   * Create NEW User document in primary DB 
+   * @param password
+   * @param email
+   * @param first_name
+   * @param last_name
+   */
+  app.put("/users/update", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likely internal -- Check Logs 😭. "
+
+    const FB_UUID: string = "QilaBD5FGdnF9iX5K9k7";
+    const FB_USER_UUID: string= "Xk2SzjgBoJh8dyUW3VcR";
+    const USER_INFO =
+    {
+      first_name: "Obi",
+      last_name: "Kanobi",
+      name: "Obi Kanobi",
+      scopes: "all",
+      password: "sha256(passwrod + email)"
+    }
 
     try {
-      const result = await createDocument("merchants", FB_UUID, "users", {users: user_list})
-      status = 200;
-      text = "SUCCESS: User succesfully created with the ID! of " + result;
-      
-    } catch (e) {
-      functions.logger.error(text,e)
-      res.status(status).json(text)
-    }    
 
-    res.status(status).json(text)
+      const result = await updateDocument(USER_INFO, "merchants", FB_UUID, "users", FB_USER_UUID);
+      console.log(result);
+
+      status = 200;
+      text = "SUCCESS: User updated succesffully 👏🏻. "
+
+    } catch (e) {
+      
+    }
+    res.status(status).json(text);
   });
+
 }

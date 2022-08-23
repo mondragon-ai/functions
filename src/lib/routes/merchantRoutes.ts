@@ -2,6 +2,7 @@ import * as express from "express";
 import * as functions from "firebase-functions";
 import {createDocument, getDocument, updateDocument} from "../../firebase";
 import * as crypto from "crypto";
+import { addNewUserToPrimaryDB } from "../helpers/users";
 /**
  * Merhcant API Routes 
  * @param app 
@@ -26,7 +27,7 @@ export const merchantRoutes = async (app: express.Express, db: FirebaseFirestore
     let text = "ERROR: Internal -- check logs.";
 
     // Req Data 
-    const merchant_info = {
+    const MERCHANT_INFO = {
       email: "test@gmail.com",
       shop: "test-name",
       first_name: "obi",
@@ -34,11 +35,23 @@ export const merchantRoutes = async (app: express.Express, db: FirebaseFirestore
       currency_code: "USD",
     }
 
+    const USER_INFO = {
+      id: crypto.randomUUID(),
+      first_name: "Obi",
+      last_name: "Kanobi",
+      name: "Obi Kanobi",
+      scopes: "NONE",
+      role: "OWNER",
+      password: "sha256(passwrod + email)"
+    }
+
     try {
       // Push data to creaete new merchant... extract DocuemntID! from primary DB
-      const result = await createDocument("merchants", "", "", merchant_info)
-      status = 200;
-      text = "SUCCESSFULLY CREATED MERCHANT STORE: " + result
+      const merhcant_response = await createDocument("merchants", "", "", MERCHANT_INFO)
+      const user_response = await addNewUserToPrimaryDB(merhcant_response, [USER_INFO])
+     
+      status = user_response.status;
+      text = user_response.text;
         
     } catch (e) {
       functions.logger.error(text, e)
@@ -192,37 +205,45 @@ export const merchantRoutes = async (app: express.Express, db: FirebaseFirestore
     };
 
     try {
-      // Gett Merchant docement 
+      // Gett Merchant docement from primary DB
       const data = await getDocument("merchants",FB_UUID,"","");
       contact_info = data?.contact_info;
 
       if (!contact_info) {
+        // add data
         contact_info = NEW_CONTACT;
-        // New Response
+
+        // New Repsonse
         status = 200;
         text = "SUCCESS: Store contact information added.";
 
       } else {
+        // append data
         contact_info = {...contact_info, ...NEW_CONTACT};
-        // New Response
+
+        // New Repsonse
         status = 201;
         text = "SUCCESS: Store contact information updated.";
 
       }
 
     } catch (e) {
+      // New Repsonse
       functions.logger.error(text, e);
       res.status(status).json(text);
     }
 
     try {
+      // Push to primary DB
       await updateDocument({contact_info: NEW_CONTACT},"merchants",FB_UUID,"","");
         
     } catch (e) {
+      // New Repsonse
       functions.logger.error(text, e);
       res.status(status).json(text);
     }
 
+    // non 500 responses
     res.status(status).json(text);
   });
 
