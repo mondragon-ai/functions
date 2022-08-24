@@ -1,7 +1,8 @@
 import * as express from "express";
 import * as cors from "cors";
-import {merchantRoutes} from "./lib/routes/merchantRoutes"
-import { usersRoutes } from "./lib/routes/usersRoutes";
+import {merchantRoutes} from "./lib/routes/merchant"
+import { usersRoutes } from "./lib/routes/users";
+import { customersRoutes } from "./lib/routes/customers";
 
 export const rest = (db: FirebaseFirestore.Firestore) => {
 
@@ -28,6 +29,7 @@ export const rest = (db: FirebaseFirestore.Firestore) => {
     // Handle Routes
     merchantRoutes(app, db);
     usersRoutes(app, db);
-
+    customersRoutes(app, db);
+ 
     return app
 }

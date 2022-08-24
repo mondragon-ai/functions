@@ -3,7 +3,7 @@ import * as express from "express";
 // import {createDocument} from "../../firebase";
 import * as crypto from "crypto";
 import { addNewUserToPrimaryDB } from "../helpers/users";
-import { updateDocument } from "../../firebase";
+import { deelteUserWithID, updateDocument } from "../../firebase";
 /**
  * Merhcant API Routes 
  * @param app 
@@ -67,6 +67,33 @@ export const usersRoutes = async (app: express.Express, db: FirebaseFirestore.Fi
 
       status = 200;
       text = "SUCCESS: User updated succesffully 👏🏻. "
+
+    } catch (e) {
+      
+    }
+    res.status(status).json(text);
+  });
+
+
+  /**
+   * Create NEW User document in primary DB 
+   * @param password
+   * @param email
+   * @param first_name
+   * @param last_name
+   */
+   app.delete("/users", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likely internal -- Check Logs 😭. "
+
+    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
+    const FB_USER_UUID: string= "PR7boV3Blce6oXsQJiPU";
+
+    try {
+
+      await deelteUserWithID(FB_USER_UUID, FB_MERCHANT_UUID);
+
+      status = 200;
+      text = "SUCCESS: User updated succesffully 👏🏻. ";
 
     } catch (e) {
       
