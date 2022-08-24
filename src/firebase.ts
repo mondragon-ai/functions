@@ -58,22 +58,50 @@ export const createDocument = async (collection: string, documenID: string, subC
     subDocumenID: string,
 ) => {
 
+
+ console.log(data, collection, documenID, subCollection, subDocumenID)
+
   let docRef = db.collection(collection).doc(documenID);
 
   if (subCollection != "") {
     docRef = db.collection(collection).doc(documenID).collection(subCollection).doc(subDocumenID);
   }
 
-  // await docRef.set(data, {
-  //   merge: true,
-  // });
+  await docRef.set(data, {
+    merge: true,
+  });
 
-  // 
- const result = await docRef.update(data);
-
- console.log(result.writeTime)
-  
 }   
+
+
+/**
+ * Update a MERCHANT document in primary DB. NON SUBCOLLECTION
+ * 
+ * @param collection 
+ * @param documenID
+ * @param collection 
+ * @param subCollection
+ * @param subDocumenID
+ * @param data
+ * @returns 
+ */
+ export const updateCustomerDocumentWithID = async (
+  data: any,
+  collection: string,
+  documenID: string,
+  subCollection: string,
+  subDocumenID: string,
+) => {
+
+  console.log(data, collection, documenID, subCollection, subDocumenID)
+
+  let docRef = db.collection(collection).doc(documenID).collection(subCollection).doc(subDocumenID);
+
+  await docRef.update(data);
+
+
+}   
+
 
 /**
  * Get a MERCHANT document in primary DB. NON SUBCOLLECTION
@@ -148,20 +176,37 @@ export const createDocument = async (collection: string, documenID: string, subC
 
 /**
  * Delete a USER document from primary DB -- SUBCOLLECTION
- * @param user_id 
- * @param merchant_uuid 
+ * @param collection 
+ * @param documentID 
+ * @param subCollection 
+ * @param subDocumentID
  * @returns 
  */
- export const deelteUserWithID = async (
-  user_id: string,
-  merchant_uuid: string,
+ export const deleteDocumentWithID = async (
+  collection: string,
+  documentID: string,
+  subCollection?: string,
+  subDocumentID?: string,
 ) => {
 
-  console.log(merchant_uuid,user_id);
-  const docs = await db.collection("merchants").doc(merchant_uuid).collection("users").doc(user_id).delete();
+  console.log(collection, documentID, subCollection, subDocumentID);
+  if (subCollection != "") {
+    await db.collection(collection)
+    .doc(documentID)
+    .collection(subCollection || "")
+    .doc(subDocumentID || "")
+    .delete();
 
-  //TODO: Consier using logic to control ONLY one store instance
-  console.log(docs);
+  } else {
+    const docs = await db.collection(collection)
+    .doc(documentID)
+    .collection(subCollection || "")
+    .doc(subDocumentID || "")
+    .delete();
+
+    console.log(docs);
+  }
+
   
 }
 

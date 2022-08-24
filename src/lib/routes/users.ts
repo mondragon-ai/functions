@@ -3,7 +3,7 @@ import * as express from "express";
 // import {createDocument} from "../../firebase";
 import * as crypto from "crypto";
 import { addNewUserToPrimaryDB } from "../helpers/users";
-import { deelteUserWithID, updateDocument } from "../../firebase";
+import { deleteDocumentWithID, updateDocument } from "../../firebase";
 /**
  * Merhcant API Routes 
  * @param app 
@@ -90,7 +90,7 @@ export const usersRoutes = async (app: express.Express, db: FirebaseFirestore.Fi
 
     try {
 
-      await deelteUserWithID(FB_USER_UUID, FB_MERCHANT_UUID);
+      await deleteDocumentWithID("merchants", FB_MERCHANT_UUID, "users", FB_USER_UUID);
 
       status = 200;
       text = "SUCCESS: User updated succesffully 👏🏻. ";

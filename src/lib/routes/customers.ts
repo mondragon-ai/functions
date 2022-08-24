@@ -1,6 +1,10 @@
 // import * as funcitons from "firebase-functions";
 import * as express from "express";
-import { createDocument, updateDocument } from "../../firebase";
+import { createDocument,
+    deleteDocumentWithID,
+    updateCustomerDocumentWithID,
+    updateDocument 
+} from "../../firebase";
 import * as crypto from "crypto"
 /**
  * all Customer routes for storefront API.
@@ -70,8 +74,8 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
         FB_CUSTOMER_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "customers", CUSTOMER_DATA);
         
         if (FB_CUSTOMER_UUID) {
-        await updateDocument({id: "cus_"+FB_CUSTOMER_UUID}, "merchants", FB_MERCHANT_UUID, "users", FB_CUSTOMER_UUID);
-          status = 200, text = "SUCCESS: User created & added to primary DB. 🧙🏼‍♂️";
+          await updateDocument({...CUSTOMER_DATA, id: `cus_${FB_CUSTOMER_UUID}`}, "merchants", FB_MERCHANT_UUID, "users", FB_CUSTOMER_UUID);
+          status = 200, text = "SUCCESS: User created & added to primary DB. 🧙🏼‍♂️. CustomerID! = " + FB_CUSTOMER_UUID;
         } else {
           status = 400, text = "ERROR: User NOT created -- Check Logs. 🤯";
         }
@@ -98,44 +102,93 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
    * @param verified_email?
    * @param status?
    */
-  app.post("/customers/", async (req: express.Request, res: express.Response) => {
+  app.put("/customers/update", async (req: express.Request, res: express.Response) => {
     let status = 500, text = "ERROR: Likley internal -- Check Logs. 😅"
+
+    // Req data for update
     let email: any = "angel@gobigly.com"; 
     const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CUSTOMER_UUID = "QilaBD5FGdnF9iX5K9k7";
-    const CUSTOMER_DATA = {
-      email: email,
-      first_name: "Darth",
-      last_name: "Vader",
-      addresses: [
-        {
-          title: "main",
-          type: "BOTH",
-          isDefault: true,
-          line1: "420 Bigly LN",
-          line2: "",
-          city: "fayetteville",
-          state:"Arkansas",
-          zip: "72704"
+    const FB_CUSTOMER_UUID = "5OokQWw7JgG7JlIj67ZT";
+
+    const REQUEST_DATA = [
+      ["email", email],
+      ["first_name", "Darth"],
+      ["last_name", "Maul"],
+      ["verified_email", true],
+    //   ['addresses', [
+    //     {
+    //       title: "HOME",
+    //       type: "BOTH",
+    //       isDefault: true,
+    //       line1: null,
+    //       line2: "",
+    //       city: "fayetteville",
+    //       state:"Arkansas",
+    //       zip: "72704"
+    //     }
+    //   ]],
+    //   ["currency_code", "USD"], // use um store no FE
+    //   ["password", "sha256(password + email)"],
+    //   ["last_order_id", "GB-" + crypto.randomUUID()],
+    //   ["tags", ["VIP"]],
+    //   ["verified_email", true],
+    //   ["status", "PAYING"]
+    ]
+
+    /**
+     * Get the data to be changed from the request object and handle to return {[key]: value} pairs. 
+     * @returns Customer! w/ only keys to be changed
+     */
+    const handleDataToChange = () => {
+      let data: {} = {};
+      REQUEST_DATA.forEach((v, i) => {
+        data = {
+          ...data,
+          [v[0]]: v[1]
         }
-      ],
-      currency_code: "USD", // use um store no FE
-      password: "sha256(password + email)",
-      last_order_id: "GB-" + crypto.randomUUID(),
-      tags: ["VIP"],
-      verified_email: false,
-      status: "PAYING"
+        console.log(v,i);
+      });
+      return data;
     }
 
-    try {
-      await updateDocument(CUSTOMER_DATA, "merchants", FB_MERCHANT_UUID, "users", FB_CUSTOMER_UUID);
+    // TODO: create & import this from the helpers/firebase.ts? 
+    const infoToPush = handleDataToChange();
 
-      status = 200, text = "SUCCESS: Customer updated. 😅"; // Colocar os [key] 
+    try {
+      // Updae document 
+      await updateCustomerDocumentWithID(infoToPush, "merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
+
+      status = 200, text = "SUCCESS: Customer updated. 💪🏼 "; // Colocar os [key] 
     } catch (e) {
       res.status(status).json(text)
     }
     res.status(status).json(text)
   });
+
+
+  /**
+   * Update customer
+   * @param FB_MERCHANT_UUID
+   * @param FB_CUSTOMER_UUID
+   */
+   app.delete("/customers/delete", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likley internal -- Check Logs. 😅"
+
+    // Req data for update
+    const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
+    const FB_CUSTOMER_UUID = "38z8exyAKwsYRoZ3QKbo";
+
+    try {
+      // Updae document 
+      await deleteDocumentWithID("merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
+
+      status = 200, text = "SUCCESS: Customer updated. 💪🏼 "; // Colocar os [key] 
+    } catch (e) {
+      res.status(status).json(text)
+    }
+    res.status(status).json(text)
+  });
+
 
 
 };
