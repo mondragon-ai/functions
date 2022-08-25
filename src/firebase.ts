@@ -163,6 +163,34 @@ export const createDocument = async (collection: string, documenID: string, subC
   
 };
 
+
+/**
+ * Get a COLLECTION document in primary DB. W/ SUBCOLLECTION
+ * 
+ * @param collection 
+ * @param documenID
+ * @param collection 
+ * @param subCollection
+ * @param subDocumenID
+ * @param data
+ * @returns 
+ */
+ export const getCollection = async (
+  collection: string,
+  documenID: string,
+  subCollection: string,
+) => {
+
+let docRef: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await db.collection(collection).get();
+
+if (subCollection != "") {
+  docRef = await db.collection(collection).doc(documenID).collection(subCollection).get();
+} 
+
+return docRef;
+
+};
+
 /**
  * Get a MERCHANT document in primary DB -- NON SUBCOLLECTION
  * 
