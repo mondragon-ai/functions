@@ -3,12 +3,12 @@ import * as cors from "cors";
 import {merchantRoutes} from "./lib/routes/merchant"
 import { usersRoutes } from "./lib/routes/users";
 import { customersRoutes } from "./lib/routes/customers";
+import { productRoutes } from "./lib/routes/products";
 
 export const rest = (db: FirebaseFirestore.Firestore) => {
 
     // Instantiate Express
     const app = express();
-    // const bodyParser = require("body-parser");
     const bearerToken = require("express-bearer-token");
     const API_PREFIX = "platform";
 
@@ -21,7 +21,6 @@ export const rest = (db: FirebaseFirestore.Firestore) => {
     })
 
     // Handle Reqs
-    // app.use(bodyParser());
     app.use(bearerToken());
     app.use(express.json())
     app.use(cors({ origin: true }))
@@ -30,6 +29,7 @@ export const rest = (db: FirebaseFirestore.Firestore) => {
     merchantRoutes(app, db);
     usersRoutes(app, db);
     customersRoutes(app, db);
+    productRoutes(app, db);
  
     return app
 }

@@ -99,6 +99,34 @@ export const createDocument = async (collection: string, documenID: string, subC
 
   await docRef.update(data);
 
+}  
+
+
+/**
+ * Update a subcollection document in primary DB. 
+ * 
+ * @param collection 
+ * @param documenID
+ * @param collection 
+ * @param subCollection
+ * @param subDocumenID
+ * @param data
+ * @returns 
+ */
+ export const updateSubcollectionDocumentWithID = async (
+  data: any,
+  collection: string,
+  documenID: string,
+  subCollection: string,
+  subDocumenID: string,
+) => {
+
+  console.log(data, collection, documenID, subCollection, subDocumenID)
+
+  let docRef = db.collection(collection).doc(documenID).collection(subCollection).doc(subDocumenID);
+
+  await docRef.update(data);
+
 
 }   
 
@@ -121,7 +149,11 @@ export const createDocument = async (collection: string, documenID: string, subC
     subDocumenID: string,
 ) => {
 
-  const docRef = await db.collection(collection).doc(documenID).get();
+  let docRef: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> = await db.collection(collection).doc(documenID).get();
+
+  if (subDocumenID != "") {
+    docRef = await db.collection(collection).doc(documenID).collection(subCollection).doc(subDocumenID).get();
+  } 
 
   if (docRef.exists) {
     return await docRef.data();

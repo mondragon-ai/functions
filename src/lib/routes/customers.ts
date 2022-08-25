@@ -6,6 +6,7 @@ import { createDocument,
     updateDocument 
 } from "../../firebase";
 import * as crypto from "crypto"
+import { handleDataToChange } from "../helpers/firebase";
 /**
  * all Customer routes for storefront API.
  * @param app 
@@ -88,7 +89,8 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
   });
 
   /**
-   * Update customer
+   * Update customer document
+   * @param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["email": "test@gmail.com"], ...[...]]
    * @param email?
    * @param FB_MERCHANT_UUID
    * @param FB_CUSTOMER_UUID
@@ -135,28 +137,12 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
     //   ["status", "PAYING"]
     ]
 
-    /**
-     * Get the data to be changed from the request object and handle to return {[key]: value} pairs. 
-     * @returns Customer! w/ only keys to be changed
-     */
-    const handleDataToChange = () => {
-      let data: {} = {};
-      REQUEST_DATA.forEach((v, i) => {
-        data = {
-          ...data,
-          [v[0]]: v[1]
-        }
-        console.log(v,i);
-      });
-      return data;
-    }
-
-    // TODO: create & import this from the helpers/firebase.ts? 
-    const infoToPush = handleDataToChange();
+    // Get the data to be changed from the request object and handle to return {[key]: value} pairs. 
+    const CUSTOMER_DATA = handleDataToChange(REQUEST_DATA);
 
     try {
       // Updae document 
-      await updateCustomerDocumentWithID(infoToPush, "merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
+      await updateCustomerDocumentWithID(CUSTOMER_DATA, "merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
 
       status = 200, text = "SUCCESS: Customer updated. 💪🏼 "; // Colocar os [key] 
     } catch (e) {
