@@ -11,7 +11,7 @@ import * as functions from "firebase-functions"
 export const addNewUserToPrimaryDB = async (FB_UUID: string,  user_data: {}) => {
 
   try {
-    const result = await createDocument("merchants", FB_UUID, "users", user_data)
+    const result = await createDocument("merchants", FB_UUID, "users", "", user_data)
     return {
       status: 200,
       text: "SUCCESS: User succesfully created with the ID! of " + result,

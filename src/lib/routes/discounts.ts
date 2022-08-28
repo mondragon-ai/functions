@@ -168,7 +168,7 @@ export const discountRoutes = async (app: express.Router) => {
 
     // Fetch Cart Object 
     try {
-      FB_DISCOUNT_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "discounts", DISCOUNT);
+      FB_DISCOUNT_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "discounts", "", DISCOUNT);
     } catch (e) {
       status = 422, text = "ERROR: Likely internal -- Check Logs 😓. GETTING CART DOCUMENT.";
     }

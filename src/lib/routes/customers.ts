@@ -72,7 +72,7 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
       if (!email) {
         status = 422, text = "ERROR: Valid email required. 🤷🏻‍♂️";
       } else {
-        FB_CUSTOMER_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "customers", CUSTOMER_DATA);
+        FB_CUSTOMER_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "customers", "", CUSTOMER_DATA);
         
         if (FB_CUSTOMER_UUID) {
           await updateDocument({...CUSTOMER_DATA, id: `cus_${FB_CUSTOMER_UUID}`}, "merchants", FB_MERCHANT_UUID, "users", FB_CUSTOMER_UUID);

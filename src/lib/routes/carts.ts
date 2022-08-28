@@ -157,7 +157,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     SUB_TOTAL_PRICE = addLineItemSubTotalPrice(REQUEST_DATA.line_item);
 
     try {
-      const result = await createDocument("merchants", FB_MERCHANT_UUID, "carts", REQUEST_DATA);
+      const result = await createDocument("merchants", FB_MERCHANT_UUID, "carts", "", REQUEST_DATA);
       await updateSubcollectionDocumentWithID({
         id: `car_${result}`,
         current_subtotal_price: SUB_TOTAL_PRICE
@@ -212,10 +212,8 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
 
     // Req path data for primary DB
     const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    let FB_CART_UUID: string = "car_" + "aBALJo37WgwAPumlqSqp";
+    let FB_CART_UUID: string = "car_" + "blK3dDX5U1e0GHVhJsIc";
     FB_CART_UUID = FB_CART_UUID.substring(4);
-
-    // TODO: If HIGH_RISK then gateway == SQUARE
 
     // Req Data To Push to primary DB
     let REQUEST_DATA: DraftOrder = {
@@ -240,23 +238,27 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     }
 
     try {
+      // Fetch Cart obj from primary DB
       customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID)
 
+      // Delete Cart obj from primary DB
       await deleteDocumentWithID("merchants",FB_MERCHANT_UUID,"carts",FB_CART_UUID)
       
     } catch (e) {
       res.status(status).json(text);
     }
 
+    // Check If HIGH_RISK then gateway == SQUARE
     REQUEST_DATA = {
       ...REQUEST_DATA,
       ...customer_cart,
-      gateway: checkIfCartIsHighRisk(customer_cart?.line_items)
+      gateway: checkIfCartIsHighRisk(customer_cart?.line_item)
     }
 
     try {
-      const result = await createDocument("merchants", FB_MERCHANT_UUID, "draft_orders", REQUEST_DATA);
-      console.log(result);
+      // Create new document with CART id
+      await createDocument("merchants", FB_MERCHANT_UUID, "draft_orders", FB_CART_UUID, REQUEST_DATA);
+      // TODO Check to see if Update with ID will work
 
       status = 200, text = "SUCCESS: Draft order created 🔥. ";
     } catch (e) {
@@ -278,24 +280,23 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
 
     // Req path data for primary DB
     const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
-
-    // TODO: If HIGH_RISK then gateway == SQUARE
+    const FB_CART_UUID: string = "blK3dDX5U1e0GHVhJsIc";
 
     // Req Data To Push to primary DB
-    let REQUEST_DATA: any = {
+    let REQUEST_DATA: LineItem = {
       variant_id: "var_" + crypto.randomBytes(10).toString('hex'), 
       title: "VIP Shirt",
       price: 13530,
       hasDiscount: true,
-      applied_discount: 20
-      
+      applied_discount: 20,
+      isHighRisk: true
     }  
 
     try {
       customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID)
 
       if (customer_cart) {
+        // Add Sbtotal of LineItem[]
         SUB_TOTAL_PRICE = addLineItemSubTotalPrice(customer_cart.line_item);
         customer_cart = {
           ...customer_cart,
@@ -340,14 +341,11 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
     const VARIANT_ID: string = "var_9a5ad7c81e94e889b9e9f089ca2d14";
 
-    // TODO: If HIGH_RISK then gateway == SQUARE
-
     try {
+      // Fetch Cart Obj from primary DB
       customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID)
-      const variants: any[] = customer_cart?.line_item
+      const variants: any[] = customer_cart?.line_items
 
-      console.log(customer_cart);
-      
       if (customer_cart) {
         customer_cart = {
           ...customer_cart,
@@ -363,7 +361,6 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     } catch (e) {
       res.status(status).json(text);
     }
-
 
     try {
       const result = await updateSubcollectionDocumentWithID(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);

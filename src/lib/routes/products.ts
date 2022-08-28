@@ -97,7 +97,7 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
     try {
 
-      const result = await createDocument("merchants", FB_MERCHANT_UUID, "products", PRODUCT_DATA);
+      const result = await createDocument("merchants", FB_MERCHANT_UUID, "products", "", PRODUCT_DATA);
       console.log(result);
       status = 200;
       text = "SUCCES: Product created 🧑🏻‍🍳.  ";

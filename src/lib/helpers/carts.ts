@@ -20,6 +20,8 @@ interface LineItem {
   
   LINE_ITEMS.forEach((v, i) => {
     SUB_TOTAL_PRICE = SUB_TOTAL_PRICE + v.price;
+    console.log(v.price)
+    console.log(SUB_TOTAL_PRICE)
   });
   return SUB_TOTAL_PRICE;
   

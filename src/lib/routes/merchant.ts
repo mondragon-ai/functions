@@ -47,7 +47,7 @@ export const merchantRoutes = async (app: express.Express, db: FirebaseFirestore
 
     try {
       // Push data to creaete new merchant... extract DocuemntID! from primary DB
-      const merhcant_response = await createDocument("merchants", "", "", MERCHANT_INFO)
+      const merhcant_response = await createDocument("merchants", "", "", "", MERCHANT_INFO)
       const user_response = await addNewUserToPrimaryDB(merhcant_response, [USER_INFO])
      
       status = user_response.status;

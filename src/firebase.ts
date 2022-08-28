@@ -23,8 +23,19 @@ export const db: FirebaseFirestore.Firestore = firestoreDB;
  * @param data?
  * @returns 
  */
-export const createDocument = async (collection: string, documenID: string, subCollection: string, data?: any) => {
+export const createDocument = async (
+  collection: string,
+  documenID: string,
+  subCollection: string,
+  subCollectionID: string,
+  data?: any
+) => {
 
+  // Subcolleciton w/ ID
+  if (subCollectionID !== "") {
+    await db.collection(collection).doc(documenID).collection(subCollection).doc(subCollectionID).set(data);
+    return subCollectionID;
+  }
 
   // Subcolleciton 1 depth
   if (documenID !== "") {
