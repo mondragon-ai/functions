@@ -4,6 +4,8 @@ import {merchantRoutes} from "./lib/routes/merchant"
 import { usersRoutes } from "./lib/routes/users";
 import { customersRoutes } from "./lib/routes/customers";
 import { productRoutes } from "./lib/routes/products";
+import { cartRoutes } from "./lib/routes/carts";
+import { discountRoutes } from "./lib/routes/discounts";
 
 export const rest = (db: FirebaseFirestore.Firestore) => {
 
@@ -30,6 +32,8 @@ export const rest = (db: FirebaseFirestore.Firestore) => {
     usersRoutes(app, db);
     customersRoutes(app, db);
     productRoutes(app, db);
+    cartRoutes(app, db);
+    discountRoutes(app);
  
     return app
 }

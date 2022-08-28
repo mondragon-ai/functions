@@ -234,6 +234,30 @@ return docRef;
 
 }
 
+
+/**
+ * Get a MERCHANT/USER document from primary DB -- SUBCOLLECTION
+ * 
+ * @param user_id 
+ * @param merchant_uuid 
+ * @returns 
+ */
+ export const getDiscountWithCode = async (
+  code: string,
+  merchant_uuid: string,
+) => {
+  let USER_ID = "";
+  const docs = await db.collection("merchants").doc(merchant_uuid).collection("discounts").where("code", "==", code).get();
+
+  //TODO: Consier using logic to control ONLY one store instance
+  console.log(docs.size);
+
+  await docs.forEach((d)=> {console.log(d.data()); USER_ID = d.id;})
+
+  return USER_ID;
+
+}
+
 /**
  * Delete a USER document from primary DB -- SUBCOLLECTION
  * @param collection 
