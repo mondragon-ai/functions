@@ -1,105 +1,17 @@
 import * as express from "express";
 import * as admin from "firebase-admin";
-import { createDocument, deleteDocumentWithID, getDiscountWithCode, getDocument, updateSubcollectionDocumentWithID } from "../../firebase";
+import {
+  createDocument,
+  deleteDocumentWithID,
+  getDiscountWithCode,
+  getDocument,
+  updateSubcollectionDocumentWithID
+} from "../../firebase";
 import { addDiscountToCart } from "../helpers/discounts";
-
-
-// interface DicsountCode {
-//   id: string,
-//   title: string,
-//   description: string,
-//   type: string,
-//   value: number
-// }
-
-// interface ShippingLines {
-//   id: string,
-//   title: string,
-//   price: number
-// }
-
-// interface Address {
-//   name: string,
-//   type: string,
-//   line1: string,
-//   line2: string,
-//   city: string, 
-//   state: string, 
-//   zip: string
-// }
-
-interface LineItem {
-  variant_id: string, 
-  title: string,
-  price: number,
-  hasDiscount: boolean,
-  isHighRisk: boolean,
-  applied_discount: number
-} 
-
-// TODO: Move to seperate type folder
-// Cart Interface for Create
-// interface Cart {
-//   type?: string,
-//   isActive?: boolean,
-//   gateway?: string,
-//   used_gift_card?: boolean,
-//   hasDiscount?: boolean,
-//   gift_car?: string
-//   discount_code?: DicsountCode,
-//   browser_ip?: string,
-//   line_item?: LineItem[],
-//   current_subtotal_price?: number, 
-//   current_discount_value?: number,
-//   current_gift_card_value?: number, 
-//   current_total_price?: number, 
-//   customer_id?: string,
-//   email?: string,
-//   tags?: string[],
-//   note?: string,
-//   addresses?: Address[],
-//   shipping_line?: ShippingLines,
-//   created_at?: string,
-//   updated_at: string,
-// };
-
-interface DiscountPreReqs {
-  customer_tags?: string[],
-  variant_ids?: string[],
-  collections?: string[],
-  sub_total: number,
-  goal_target: number
-}
-
-interface Entitled {
-  collections?: string[],
-  line_items?: LineItem[],
-  customer_tags?: string[],
-}
-
-interface Omitted {
-  collections?: string[],
-  line_items?: LineItem[],
-  customer_tags?: string[],
-}
-
-interface Discount {
-  id?: string,
-  automatic_type: string,
-  created_at: string,
-  updated_at: string,
-  value_type: string
-  type: string,
-  status: boolean
-  isAutomatic: boolean,
-  code: "",
-  once_per_customer: false,
-  usage_limit: 1000,
-  pre_reqs: DiscountPreReqs,
-  entitled: Entitled,
-  omitted: Omitted
-  all_products: boolean,
-}
+import {
+  // DiscountPreReqs,
+  Discount
+} from "../types/discounts";
 
 /**
  * All discount related api routes
