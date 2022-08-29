@@ -340,7 +340,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     // Req path data for primary DB
     const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
     const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
-    let CUSTOMER_ID: string = "cus_"+ "3uodpXUJNbYY6Yhj3qBF" //crypto.randomBytes(10).toString("hex");
+    let CUSTOMER_ID: string = "cus_"+ "I1wsLDtYwt61da2hhODm" //crypto.randomBytes(10).toString("hex");
     console.log(CUSTOMER_ID);
 
     CUSTOMER_ID = CUSTOMER_ID.substring(4);

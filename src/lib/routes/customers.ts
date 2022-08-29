@@ -110,7 +110,7 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
     // Req data for update
     let email: any = "angel@gobigly.com"; 
     const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CUSTOMER_UUID = "5OokQWw7JgG7JlIj67ZT";
+    const FB_CUSTOMER_UUID = "I1wsLDtYwt61da2hhODm";
 
     const REQUEST_DATA = [
       ["email", email],
@@ -162,7 +162,7 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
 
     // Req data for update
     const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CUSTOMER_UUID = "38z8exyAKwsYRoZ3QKbo";
+    const FB_CUSTOMER_UUID = "I1wsLDtYwt61da2hhODm";
 
     try {
       // Updae document 

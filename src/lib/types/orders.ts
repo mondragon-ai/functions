@@ -14,13 +14,14 @@ price: number
 }
 
 export interface Address {
-name: string,
-type: string,
+name?: string,
+type?: string,
 line1: string,
 line2: string,
 city: string, 
 state: string, 
-zip: string
+zip?: string
+postal_code?: string
 }
 
 export interface LineItem {
