@@ -6,7 +6,7 @@ import { Customer } from "../types/customers";
  * @param REQUEST_DATA: string
  * @return {} Customer! w/ only keys to be changed
  */
-export const handleDataToChange = (REQUEST_DATA: any[][]): Customer => {
+export const handleDataToChange = (REQUEST_DATA: any[][]): any => {
   let data: Customer = {};
 
   // loop through data to push and create customer object

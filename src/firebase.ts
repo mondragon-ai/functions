@@ -176,14 +176,11 @@ export const createDocument = async (
 
 
 /**
- * Get a COLLECTION document in primary DB. W/ SUBCOLLECTION
- * 
+ * Get a COLLECTION document in primary DB. W/ SUBCOLLECTION && limit
  * @param collection 
  * @param documenID
  * @param collection 
  * @param subCollection
- * @param subDocumenID
- * @param data
  * @returns 
  */
  export const getCollection = async (
@@ -192,10 +189,10 @@ export const createDocument = async (
   subCollection: string,
 ) => {
 
-let docRef: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await db.collection(collection).get();
+let docRef: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await db.collection(collection).limit(25).get();
 
 if (subCollection != "") {
-  docRef = await db.collection(collection).doc(documenID).collection(subCollection).get();
+  docRef = await db.collection(collection).doc(documenID).collection(subCollection).limit(25).get();
 } 
 
 return docRef;
@@ -239,7 +236,7 @@ return docRef;
   //TODO: Consier using logic to control ONLY one store instance
   console.log(docs.size);
 
-  await docs.forEach((d)=> {console.log(d.data()); USER_ID = d.id;})
+  docs.forEach((d)=> {console.log(d.data()); USER_ID = d.id;})
 
   return USER_ID;
 
@@ -248,8 +245,7 @@ return docRef;
 
 /**
  * Get a MERCHANT/USER document from primary DB -- SUBCOLLECTION
- * 
- * @param user_id 
+ * @param code 
  * @param merchant_uuid 
  * @returns 
  */

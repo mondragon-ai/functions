@@ -137,6 +137,7 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
    * @param FB_CUSTOMER_UUID
    */
    app.delete("/customers/delete", async (req: express.Request, res: express.Response) => {
+    // Response data to update & send back
     let status = 500, text = "ERROR: Likley internal -- Check Logs. 😅. "
 
     // Req data for update
