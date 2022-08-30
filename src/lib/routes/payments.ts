@@ -28,7 +28,7 @@ export const paymentRoutes = (app: express.Router) => {
         line2: line2 || "",
         city: city || "Denver",
         state: state || "Co",
-        postal_code:  zip || ""
+        zip:  zip || ""
       },
       email: customer?.email || "allmight@gobigly.com",
       name: customer?.name || "All Might",

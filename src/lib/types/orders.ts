@@ -14,14 +14,15 @@ price: number
 }
 
 export interface Address {
-name?: string,
-type?: string,
-line1: string,
-line2: string,
-city: string, 
-state: string, 
-zip?: string
-postal_code?: string
+  id?: string,
+  title?: string,
+  isDefault?: boolean,
+  type?: "BOTH" | "SHIPPING" | "BILLING",
+  line1: string,
+  line2: string,
+  city: string, 
+  state: string, 
+  zip?: string
 }
 
 export interface LineItem {

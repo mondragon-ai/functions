@@ -1,0 +1,317 @@
+[debug] [2022-08-30T16:52:09.238Z] ----------------------------------------------------------------------
+[debug] [2022-08-30T16:52:09.240Z] Command:       /usr/local/bin/node /usr/local/bin/firebase emulators:start --only functions
+[debug] [2022-08-30T16:52:09.241Z] CLI Version:   10.2.0
+[debug] [2022-08-30T16:52:09.241Z] Platform:      darwin
+[debug] [2022-08-30T16:52:09.241Z] Node Version:  v16.13.2
+[debug] [2022-08-30T16:52:09.242Z] Time:          Tue Aug 30 2022 11:52:09 GMT-0500 (Central Daylight Time)
+[debug] [2022-08-30T16:52:09.242Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2022-08-30T16:52:09.307Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2022-08-30T16:52:09.307Z] > authorizing via signed-in user (angel.mondragonths@gmail.com)
+[info] i  emulators: Starting emulators: functions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions"}}
+[debug] [2022-08-30T16:52:09.351Z] [hub] writing locator at /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/hub-shopify-recharge-352914.json
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: auth, firestore, database, hosting, pubsub, storage {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mauth, firestore, database, hosting, pubsub, storage\u001b[22m"}}
+[info] ✔  functions: Using node@16 from host. {"metadata":{"emulator":{"name":"functions"},"message":"Using node@16 from host."}}
+[debug] [2022-08-30T16:52:09.366Z] defaultcredentials: writing to file /Users/angelmondragon/.config/firebase/angel_mondragonths_gmail.com_application_default_credentials.json
+[debug] [2022-08-30T16:52:09.368Z] Setting GAC to /Users/angelmondragon/.config/firebase/angel_mondragonths_gmail.com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to /Users/angelmondragon/.config/firebase/angel_mondragonths_gmail.com_application_default_credentials.json"}}
+[debug] [2022-08-30T16:52:09.371Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/shopify-recharge-352914/adminSdkConfig [none]
+[debug] [2022-08-30T16:52:10.713Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/shopify-recharge-352914/adminSdkConfig 200
+[debug] [2022-08-30T16:52:10.713Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/shopify-recharge-352914/adminSdkConfig {"projectId":"shopify-recharge-352914","storageBucket":"shopify-recharge-352914.appspot.com","locationId":"us-central"}
+[debug] [2022-08-30T16:52:10.748Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2022-08-30T16:52:10.748Z] Ignoring unsupported arg: port {"metadata":{"emulator":{"name":"ui"},"message":"Ignoring unsupported arg: port"}}
+[debug] [2022-08-30T16:52:10.748Z] Starting Emulator UI with command {"binary":"node","args":["/Users/angelmondragon/.cache/firebase/emulators/ui-v1.6.4/server.bundle.js"],"optionalArgs":[],"joinArgs":false} {"metadata":{"emulator":{"name":"ui"},"message":"Starting Emulator UI with command {\"binary\":\"node\",\"args\":[\"/Users/angelmondragon/.cache/firebase/emulators/ui-v1.6.4/server.bundle.js\"],\"optionalArgs\":[],\"joinArgs\":false}"}}
+[info] i  ui: Emulator UI logging to ui-debug.log {"metadata":{"emulator":{"name":"ui"},"message":"Emulator UI logging to \u001b[1mui-debug.log\u001b[22m"}}
+[debug] [2022-08-30T16:52:10.844Z] Web / API server started at localhost:4000
+ {"metadata":{"emulator":{"name":"ui"},"message":"Web / API server started at localhost:4000\n"}}
+[info] i  functions: Watching "/Users/angelmondragon/Prod/ecomm-platform/functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"/Users/angelmondragon/Prod/ecomm-platform/functions\" for Cloud Functions..."}}
+[debug] [2022-08-30T16:52:11.019Z] Validating nodejs source
+[debug] [2022-08-30T16:52:11.972Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:52:11.972Z] Building nodejs source
+[debug] [2022-08-30T16:52:11.972Z] Analyzing nodejs backend spec
+[info] ✔  functions[us-central1-platform]: http function initialized (http://localhost:5001/shopify-recharge-352914/us-central1/platform). {"metadata":{"emulator":{"name":"functions"},"message":"\u001b[1mhttp\u001b[22m function initialized (http://localhost:5001/shopify-recharge-352914/us-central1/platform)."}}
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://localhost:4000                │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ localhost:5001 │ http://localhost:4000/functions │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub running at localhost:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2022-08-30T16:52:13.083Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2022-08-30T16:52:13.083Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2022-08-30T16:52:13.083Z] Accepted request DELETE /shopify-recharge-352914/us-central1/platform/customers/delete --> us-central1-platform
+[debug] [2022-08-30T16:52:13.090Z] [worker-pool] addWorker(us-central1-platform) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] addWorker(us-central1-platform)"}}
+[debug] [2022-08-30T16:52:13.091Z] [worker-pool] Adding worker with key us-central1-platform, total=1 {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Adding worker with key us-central1-platform, total=1"}}
+[debug] [2022-08-30T16:52:13.091Z] [worker-pool] submitWork(triggerId=us-central1-platform) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitWork(triggerId=us-central1-platform)"}}
+[debug] [2022-08-30T16:52:13.091Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:13.091Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY"}}
+[debug] [2022-08-30T16:52:13.691Z] [runtime-status] [4436] Functions runtime initialized. {"cwd":"/Users/angelmondragon/Prod/ecomm-platform/functions","node_version":"16.13.2"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Functions runtime initialized. {\"cwd\":\"/Users/angelmondragon/Prod/ecomm-platform/functions\",\"node_version\":\"16.13.2\"}"}}
+[debug] [2022-08-30T16:52:13.692Z] [runtime-status] [4436] Disabled runtime features: undefined {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Disabled runtime features: undefined"}}
+[debug] [2022-08-30T16:52:13.693Z] [runtime-status] [4436] Resolved module firebase-admin {"declared":true,"installed":true,"version":"9.12.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"9.12.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.694Z] [runtime-status] [4436] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.22.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"3.22.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.694Z] [runtime-status] [4436] Outgoing network have been stubbed. [{"name":"http","status":"mocked"},{"name":"http","status":"mocked"},{"name":"https","status":"mocked"},{"name":"https","status":"mocked"},{"name":"net","status":"mocked"}] {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Outgoing network have been stubbed. [{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"http\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"https\",\"status\":\"mocked\"},{\"name\":\"net\",\"status\":\"mocked\"}]"}}
+[debug] [2022-08-30T16:52:13.694Z] [runtime-status] [4436] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.22.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"3.22.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.721Z] [runtime-status] [4436] Checked functions.config() {"config":{}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Checked functions.config() {\"config\":{}}"}}
+[debug] [2022-08-30T16:52:13.721Z] [runtime-status] [4436] firebase-functions has been stubbed. {"functionsResolution":{"declared":true,"installed":true,"version":"3.22.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] firebase-functions has been stubbed. {\"functionsResolution\":{\"declared\":true,\"installed\":true,\"version\":\"3.22.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js\"}}"}}
+[debug] [2022-08-30T16:52:13.722Z] [runtime-status] [4436] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.22.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"3.22.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.722Z] [runtime-status] [4436] Resolved module firebase-admin {"declared":true,"installed":true,"version":"9.12.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-admin {\"declared\":true,\"installed\":true,\"version\":\"9.12.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.723Z] [runtime-status] [4436] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.22.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Resolved module firebase-functions {\"declared\":true,\"installed\":true,\"version\":\"3.22.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-functions/lib/index.js\"}"}}
+[debug] [2022-08-30T16:52:13.723Z] [runtime-status] [4436] firebase-admin has been stubbed. {"adminResolution":{"declared":true,"installed":true,"version":"9.12.0","resolution":"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js"}} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] firebase-admin has been stubbed. {\"adminResolution\":{\"declared\":true,\"installed\":true,\"version\":\"9.12.0\",\"resolution\":\"/Users/angelmondragon/Prod/ecomm-platform/functions/node_modules/firebase-admin/lib/index.js\"}}"}}
+[debug] [2022-08-30T16:52:13.781Z] [runtime-status] [4436] initializeApp(DEFAULT) {"storageBucket":"shopify-recharge-352914.appspot.com","projectId":"shopify-recharge-352914"} {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] initializeApp(DEFAULT) {\"storageBucket\":\"shopify-recharge-352914.appspot.com\",\"projectId\":\"shopify-recharge-352914\"}"}}
+[warn] ⚠  functions: The Cloud Firestore emulator is not running, so calls to Firestore will affect production. {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"The Cloud Firestore emulator is not running, so calls to Firestore will affect production."}}
+[debug] [2022-08-30T16:52:13.837Z] [runtime-status] [4436] Beginning invocation function platform! {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Beginning invocation function platform!"}}
+[info] i  functions: Beginning execution of "platform" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Beginning execution of \"platform\""}}
+[debug] [2022-08-30T16:52:13.838Z] [runtime-status] [4436] Running platform in signature http {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Running platform in signature http"}}
+[debug] [2022-08-30T16:52:13.840Z] [runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:13.843Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2022-08-30T16:52:13.843Z] [functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete"}}
+[debug] [2022-08-30T16:52:13.854Z] [runtime-status] [4436] Ephemeral server handling DELETE request {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server handling DELETE request"}}
+[info] >  merchants QilaBD5FGdnF9iX5K9k7 customers NEf2SyKxd01DIzHxVFuk {"user":"merchants QilaBD5FGdnF9iX5K9k7 customers NEf2SyKxd01DIzHxVFuk","metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"\u001b[90m> \u001b[39m merchants QilaBD5FGdnF9iX5K9k7 customers NEf2SyKxd01DIzHxVFuk"}}
+[debug] [2022-08-30T16:52:14.039Z] [runtime-status] [4436] Ephemeral server survived. {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server survived."}}
+[warn] ⚠  Google API requested!
+   - URL: "https://oauth2.googleapis.com/token"
+   - Be careful, this may be a production service. {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Google API requested!\n   - URL: \"https://oauth2.googleapis.com/token\"\n   - Be careful, this may be a production service."}}
+[info] i  functions: Finished "platform" in ~1s {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Finished \"platform\" in ~1s"}}
+[debug] [2022-08-30T16:52:14.423Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE"}}
+[debug] [2022-08-30T16:52:14.423Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2022-08-30T16:52:33.050Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2022-08-30T16:52:33.050Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2022-08-30T16:52:33.050Z] Accepted request DELETE /shopify-recharge-352914/us-central1/platform/customers/delete --> us-central1-platform
+[debug] [2022-08-30T16:52:33.051Z] [worker-pool] submitWork(triggerId=us-central1-platform) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitWork(triggerId=us-central1-platform)"}}
+[debug] [2022-08-30T16:52:33.051Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:33.051Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY"}}
+[debug] [2022-08-30T16:52:33.051Z] [runtime-status] [4436] Beginning invocation function platform! {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Beginning invocation function platform!"}}
+[info] i  functions: Beginning execution of "platform" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Beginning execution of \"platform\""}}
+[debug] [2022-08-30T16:52:33.052Z] [runtime-status] [4436] Running platform in signature http {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Running platform in signature http"}}
+[debug] [2022-08-30T16:52:33.052Z] [runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:33.054Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2022-08-30T16:52:33.054Z] [functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete"}}
+[debug] [2022-08-30T16:52:33.056Z] [runtime-status] [4436] Ephemeral server handling DELETE request {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server handling DELETE request"}}
+[info] >  merchants QilaBD5FGdnF9iX5K9k7 customers 5OokQWw7JgG7JlIj67ZT {"user":"merchants QilaBD5FGdnF9iX5K9k7 customers 5OokQWw7JgG7JlIj67ZT","metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"\u001b[90m> \u001b[39m merchants QilaBD5FGdnF9iX5K9k7 customers 5OokQWw7JgG7JlIj67ZT"}}
+[debug] [2022-08-30T16:52:33.057Z] [runtime-status] [4436] Ephemeral server survived. {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server survived."}}
+[info] i  functions: Finished "platform" in ~1s {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Finished \"platform\" in ~1s"}}
+[debug] [2022-08-30T16:52:33.167Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE"}}
+[debug] [2022-08-30T16:52:33.167Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2022-08-30T16:52:44.217Z] [work-queue] {"queueLength":1,"workRunningCount":0}
+[debug] [2022-08-30T16:52:44.217Z] [work-queue] {"queueLength":0,"workRunningCount":1}
+[debug] [2022-08-30T16:52:44.217Z] Accepted request DELETE /shopify-recharge-352914/us-central1/platform/customers/delete --> us-central1-platform
+[debug] [2022-08-30T16:52:44.217Z] [worker-pool] submitWork(triggerId=us-central1-platform) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] submitWork(triggerId=us-central1-platform)"}}
+[debug] [2022-08-30T16:52:44.217Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: Assigning socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:44.217Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: BUSY"}}
+[debug] [2022-08-30T16:52:44.217Z] [runtime-status] [4436] Beginning invocation function platform! {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Beginning invocation function platform!"}}
+[info] i  functions: Beginning execution of "platform" {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Beginning execution of \"platform\""}}
+[debug] [2022-08-30T16:52:44.218Z] [runtime-status] [4436] Running platform in signature http {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Running platform in signature http"}}
+[debug] [2022-08-30T16:52:44.218Z] [runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Attempting to listen to socketPath: /var/folders/19/c2q95cbs3n73st1y0c3h33b00000gn/T/fire_emu_4436.sock"}}
+[debug] [2022-08-30T16:52:44.219Z] [functions] Runtime ready! Sending request! {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Runtime ready! Sending request!"}}
+[debug] [2022-08-30T16:52:44.219Z] [functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete {"metadata":{"emulator":{"name":"functions"},"message":"[functions] Got req.url=/shopify-recharge-352914/us-central1/platform/customers/delete, mapping to path=/customers/delete"}}
+[debug] [2022-08-30T16:52:44.220Z] [runtime-status] [4436] Ephemeral server handling DELETE request {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server handling DELETE request"}}
+[info] >  merchants QilaBD5FGdnF9iX5K9k7 customers DFoN23pODlnG3E4c5aAx {"user":"merchants QilaBD5FGdnF9iX5K9k7 customers DFoN23pODlnG3E4c5aAx","metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"\u001b[90m> \u001b[39m merchants QilaBD5FGdnF9iX5K9k7 customers DFoN23pODlnG3E4c5aAx"}}
+[debug] [2022-08-30T16:52:44.221Z] [runtime-status] [4436] Ephemeral server survived. {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"[runtime-status] [4436] Ephemeral server survived."}}
+[info] i  functions: Finished "platform" in ~1s {"metadata":{"emulator":{"name":"functions"},"function":{"name":"us-central1-platform"},"message":"Finished \"platform\" in ~1s"}}
+[debug] [2022-08-30T16:52:44.343Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: IDLE"}}
+[debug] [2022-08-30T16:52:44.344Z] [work-queue] {"queueLength":0,"workRunningCount":0}
+[debug] [2022-08-30T16:53:52.033Z] File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/types/customers.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/types/customers.ts changed, reloading triggers"}}
+[debug] [2022-08-30T16:53:53.035Z] [worker-pool] Shutting down IDLE worker (us-central1-platform) {"metadata":{"emulator":{"name":"functions"},"message":"[worker-pool] Shutting down IDLE worker (us-central1-platform)"}}
+[debug] [2022-08-30T16:53:53.035Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: FINISHING {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: FINISHING"}}
+[debug] [2022-08-30T16:53:53.037Z] Validating nodejs source
+[debug] [2022-08-30T16:53:54.075Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:53:54.076Z] Building nodejs source
+[debug] [2022-08-30T16:53:54.076Z] Analyzing nodejs backend spec
+[debug] [2022-08-30T16:53:54.082Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: exited {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: exited"}}
+[debug] [2022-08-30T16:53:54.082Z] [worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: FINISHED {"metadata":{"emulator":{"name":"functions"},"message":"[worker-us-central1-platform-cdfeb775-7884-4b09-a773-b67e20dc250e]: FINISHED"}}
+[debug] [2022-08-30T16:54:19.594Z] File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/routes/customers.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/routes/customers.ts changed, reloading triggers"}}
+[debug] [2022-08-30T16:54:20.595Z] Validating nodejs source
+[debug] [2022-08-30T16:54:21.796Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:54:21.797Z] Building nodejs source
+[debug] [2022-08-30T16:54:21.797Z] Analyzing nodejs backend spec
+[debug] [2022-08-30T16:54:34.002Z] File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/helpers/firebase.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/helpers/firebase.ts changed, reloading triggers"}}
+[debug] [2022-08-30T16:54:35.004Z] Validating nodejs source
+[debug] [2022-08-30T16:54:35.954Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:54:35.955Z] Building nodejs source
+[debug] [2022-08-30T16:54:35.955Z] Analyzing nodejs backend spec
+[debug] [2022-08-30T16:54:54.885Z] File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/helpers/firebase.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/helpers/firebase.ts changed, reloading triggers"}}
+[debug] [2022-08-30T16:54:55.887Z] Validating nodejs source
+[debug] [2022-08-30T16:54:56.912Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:54:56.912Z] Building nodejs source
+[debug] [2022-08-30T16:54:56.912Z] Analyzing nodejs backend spec
+[debug] [2022-08-30T16:55:21.070Z] File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/routes/customers.ts changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /Users/angelmondragon/Prod/ecomm-platform/functions/src/lib/routes/customers.ts changed, reloading triggers"}}
+[debug] [2022-08-30T16:55:22.073Z] Validating nodejs source
+[debug] [2022-08-30T16:55:23.188Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-bearer-token": "^2.4.0",
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "stripe": "^10.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^3.8.0"
+  },
+  "private": true
+}
+[debug] [2022-08-30T16:55:23.189Z] Building nodejs source
+[debug] [2022-08-30T16:55:23.189Z] Analyzing nodejs backend spec

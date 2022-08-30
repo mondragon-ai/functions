@@ -180,7 +180,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       updated_at: `${admin.firestore.Timestamp.now()}`,
       addresses: [
         {
-          name: "Obi Kanobi",
+          // name: "Obi Kanobi",
           type: "BOTH",
           line1: "420 Bigly Ln",
           line2: "",
