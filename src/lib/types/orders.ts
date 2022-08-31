@@ -26,34 +26,63 @@ export interface Address {
 }
 
 export interface LineItem {
-variant_id: string, 
-title: string,
-price: number,
-hasDiscount: boolean,
-isHighRisk?: boolean,
-applied_discount?: number
+  variant_id?: string, 
+  title?: string,
+  price: number | 0,
+  has_discount?: boolean,
+  isHighRisk?: boolean,
+  applied_discount?: number | 0,
+  quantity: number | 0
 } 
 
 export interface Cart {
-type: string,
-isActive: boolean,
-gateway: string,
-used_gift_card: boolean,
-hasDiscount: boolean,
-gift_car?: string
+type?: string,
+isActive?: boolean,
+gateway?: string,
+used_gift_card?: boolean,
+has_discount?: boolean,
+gift_card?: string
 discount_code?: DicsountCode,
-browser_ip: string,
-line_item: LineItem[],
-current_subtotal_price: number, 
-current_discount_value: number,
-current_gift_card_value: number, 
-current_total_price: number, 
+browser_ip?: string,
+line_item?: LineItem[],
+current_subtotal_price?: number, 
+current_discount_value?: number,
+current_gift_card_value?: number, 
+current_total_price?: number, 
 customer_id?: string,
 email?: string,
 tags?: string[],
 note?: string,
 addresses?: Address[],
 shipping_line?: ShippingLines,
-created_at: string,
-updated_at: string,
+created_at?: FirebaseFirestore.Timestamp,
+updated_at: FirebaseFirestore.Timestamp,
+};
+
+export interface DraftOrder {
+  id: string,
+  checkout_url?: string
+  type?: string,
+  isActive?: boolean,
+  gateway?: string,
+  used_gift_card?: boolean,
+  hasDiscount?: boolean,
+  gift_car?: string
+  discount_code?: DicsountCode,
+  browser_ip?: string,
+  line_item?: LineItem[],
+  current_subtotal_price?: number, 
+  current_discount_value?: number,
+  current_gift_card_value?: number, 
+  current_total_price?: number, 
+  customer_id?: string,
+  email?: string,
+  tags?: string[],
+  note?: string,
+  addresses?: Address[],
+  shipping_line?: ShippingLines,
+  created_at?: FirebaseFirestore.Timestamp,
+  updated_at: FirebaseFirestore.Timestamp,
+  fullfillment_status?: string,
+  payment_status?: string,
 };

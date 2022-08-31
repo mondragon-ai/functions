@@ -1,20 +1,20 @@
 import * as express from "express";
 import * as admin from "firebase-admin";
-import { createDocument,
+import { 
+  createDocument,
   deleteDocumentWithID,
   getDocument,
+  updateDocument,
   updateSubcollectionDocumentWithID
 } from "../../firebase";
-import * as crypto from "crypto";
+// import * as crypto from "crypto";
 import {
   addLineItemSubTotalPrice,
   checkIfCartIsHighRisk
 } from "../helpers/carts";
 import {
-  DicsountCode,
-  ShippingLines,
-  Address,
   LineItem,
+  DraftOrder,
   Cart
 } from "../types/orders"
 
@@ -40,119 +40,44 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
    app.post("/cart/create", async (req: express.Request, res: express.Response) => {
     let status = 500,
     text = "ERROR: Likely internal -- Check Logs 😓. ",
-    SUB_TOTAL_PRICE: number = 0;
+    REQUEST_DATA = req.body.new_data,
+    FB_CART_UUID: string = "";
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+    const line_items: LineItem[] = REQUEST_DATA.line_items;
+
 
     // Req Data To Push to primary DB
-    const REQUEST_DATA: Cart = {
-      type: "CART",
-      isActive: true,
-      gateway: "" || "STRIPE", // TODO: Helper function 
-      used_gift_card: false,
-      hasDiscount: false,
-      // gift_card: ""
-      // discount_code: {
-      //   id: "dis_040340023847",
-      //   title: "VIP CLUB MEMBER",
-      //   description: "20% off store wide for VIP members",
-      //   type: "P",
-      //   value: 20
-      // },
-      browser_ip: "",
-      line_item: [
-        {
-          variant_id: "var_93824798", 
-          title: "VIP Club",
-          price: 9000,
-          hasDiscount: false,
-          isHighRisk: false
-        },
-        {
-          variant_id: "var_93824798", 
-          title: "VIP Shirt",
-          price: 9000,
-          hasDiscount: false,
-          isHighRisk: false,
-          applied_discount: 0
-        }   
-      ],
-      current_subtotal_price: 9000, // TODO: Helper Fn to calculate subtotal value. Probs on FE
-      current_discount_value: 9000 * .20,// TODO: Helper Fn to calculate discount total value.  Probs on FE
+    const cart = {
+      ...REQUEST_DATA,
+      current_subtotal_price: addLineItemSubTotalPrice(line_items),
+      current_discount_value: 0,// TODO: Helper Fn to calculate discount total value.  Probs on FE
       current_gift_card_value: 0, 
-      current_total_price: 9000 * .20, // TODO: Helper Fn to calculate total value less discounts.  Probs on FE
-      // customer_id: "cus_87239487203847",
-      // email: "angel@gogigly.com",
-      // tags: ["VIP_MEMBER"],
-      // note: "",
-      // addresses: [
-      //   {
-      //     type: "BOTH",
-      //     name: "obi", 
-      //     line1: "420 Bigly ln",
-      //     line2: "",
-      //     city: "Fayetteille",
-      //     state: "Arkansas",
-      //     zip: "72704"
-      //   }
-      // ],
-      // shipping_line: {
-      //   id: "19aaa23a-a295-4a72-8ff5-36b85caac154",
-      //   title: "Standard Domestic",
-      //   price: 599
-      // },
-      created_at: `${admin.firestore.Timestamp.now()}`,
-      updated_at: `${admin.firestore.Timestamp.now()}`
+      current_total_price: 0, // TODO: Helper Fn to calculate total value less discounts.  Probs on FE
+      created_at: admin.firestore.Timestamp.now(),
+      updated_at: admin.firestore.Timestamp.now()
     }
 
-    console.log(REQUEST_DATA);
-
-    SUB_TOTAL_PRICE = addLineItemSubTotalPrice(REQUEST_DATA.line_item);
-
     try {
-      const result = await createDocument("merchants", FB_MERCHANT_UUID, "carts", "", REQUEST_DATA);
-      await updateSubcollectionDocumentWithID({
-        id: `car_${result}`,
-        current_subtotal_price: SUB_TOTAL_PRICE
-       }, "merchants", FB_MERCHANT_UUID, "carts", result);
-      console.log(result);
+      FB_CART_UUID = await createDocument("merchants", FB_MERCHANT_UUID, "carts", "", cart);
 
-      status = 200, text = "SUCCESS: New cart created 🔥. ";
     } catch (e) {
       res.status(status).json(text);
     }
+
+    try {
+      await updateSubcollectionDocumentWithID({
+        id: `car_${FB_CART_UUID}`,
+      }, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
+      console.log(FB_CART_UUID);
+      status = 200, text = "SUCCESS: New cart created 🔥.  car_" + FB_CART_UUID;
+    } catch (e) {
+      res.status(status).json(text);
+    }
+
     res.status(status).json(text);
    });
-
-  // Cart Interface for Draft Order
-  interface DraftOrder {
-    id: string,
-    checkout_url?: string
-    type?: string,
-    isActive?: boolean,
-    gateway?: string,
-    used_gift_card?: boolean,
-    hasDiscount?: boolean,
-    gift_car?: string
-    discount_code?: DicsountCode,
-    browser_ip?: string,
-    line_item?: LineItem[],
-    current_subtotal_price?: number, 
-    current_discount_value?: number,
-    current_gift_card_value?: number, 
-    current_total_price?: number, 
-    customer_id?: string,
-    email?: string,
-    tags?: string[],
-    note?: string,
-    addresses?: Address[],
-    shipping_line?: ShippingLines,
-    created_at?: string,
-    updated_at: string,
-    fullfillment_status?: string,
-    payment_status?: string,
-  };
 
   /**
    * Create a NEW Draft Order! 
@@ -160,14 +85,15 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
    * @param cart: Cart! -- see interface object inside types file  
    */
    app.post("/cart/complete", async (req: express.Request, res: express.Response) => {
+    // Status to send back 
     let status = 500,
     text = "ERROR: Likely internal -- Check Logs 😓. ",
-    customer_cart;
+    customer_cart,
+    FB_CART_UUID: string = req.body.cart_uuid;
+    FB_CART_UUID = FB_CART_UUID.substring(4);
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    let FB_CART_UUID: string = "car_" + "blK3dDX5U1e0GHVhJsIc";
-    FB_CART_UUID = FB_CART_UUID.substring(4);
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
 
     // Req Data To Push to primary DB
     let REQUEST_DATA: DraftOrder = {
@@ -177,7 +103,8 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       type: "DRAFT",
       isActive: true,
       checkout_url: "",
-      updated_at: `${admin.firestore.Timestamp.now()}`,
+      created_at: admin.firestore.Timestamp.now(),
+      updated_at: admin.firestore.Timestamp.now(),
       addresses: [
         {
           // name: "Obi Kanobi",
@@ -189,7 +116,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
           zip: "72704"
         }
       ]
-    }
+    };
 
     try {
       // Fetch Cart obj from primary DB
@@ -209,12 +136,13 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       gateway: checkIfCartIsHighRisk(customer_cart?.line_item)
     }
 
+    // TODO: get checkout URL 
+
     try {
       // Create new document with CART id
       await createDocument("merchants", FB_MERCHANT_UUID, "draft_orders", FB_CART_UUID, REQUEST_DATA);
-      // TODO Check to see if Update with ID will work
 
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      status = 200, text = "SUCCESS: Draft order created 🔥. =>  dor_" + FB_CART_UUID;
     } catch (e) {
       res.status(status).json(text);
     }
@@ -226,54 +154,61 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
    * @param FB_MERCHANT_UUID: string
    * @param cart: Cart! -- see interface object inside types file  
    */
-   app.put("/cart/update/add_product", async (req: express.Request, res: express.Response) => {
+   app.put("/cart/update/add-product", async (req: express.Request, res: express.Response) => {
+    // Status to update
     let status = 500, 
     text = "ERROR: Likely internal -- Check Logs 😓. ",
     customer_cart, 
-    SUB_TOTAL_PRICE: number = 0;
+    FB_CART_UUID: string = req.body.cart_uuid; 
+
+    FB_CART_UUID = FB_CART_UUID.substring(4);
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CART_UUID: string = "blK3dDX5U1e0GHVhJsIc";
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID; 
+    const line_item: LineItem = req.body.line_item
 
     // Req Data To Push to primary DB
     let REQUEST_DATA: LineItem = {
-      variant_id: "var_" + crypto.randomBytes(10).toString('hex'), 
-      title: "VIP Shirt",
-      price: 13530,
-      hasDiscount: true,
-      applied_discount: 20,
-      isHighRisk: true
-    }  
+      variant_id: line_item.variant_id || "", 
+      title: line_item.title || "",
+      price: line_item.price || 0,
+      has_discount: line_item.has_discount || false,
+      applied_discount: line_item.applied_discount || 0,
+      isHighRisk: line_item.isHighRisk  || false,
+      quantity: line_item.quantity || 1
+    }
 
     try {
+      // Get documents
       customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID)
 
-      if (customer_cart) {
-        // Add Sbtotal of LineItem[]
-        SUB_TOTAL_PRICE = addLineItemSubTotalPrice(customer_cart.line_item);
-        customer_cart = {
-          ...customer_cart,
-          line_item: [
-            ...customer_cart.line_item,
-            REQUEST_DATA
-          ],
-          current_subtotal_price: SUB_TOTAL_PRICE
-        } 
-        console.log(customer_cart);
-      } else {
-        status = 422, text = "ERROR: Cannot find documetn 😓. DRAFT_ORDERS";
-      }
-
+      // TODO: Check if LineItem.variant_id exists in customer_cart
+      
     } catch (e) {
       res.status(status).json(text);
     }
 
-    try {
-      const result = await updateSubcollectionDocumentWithID(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
-      console.log(result);
+    if (customer_cart) {
+      // Add Subtotal of LineItem[]
+      customer_cart = {
+        ...customer_cart,
+        line_items: [
+          ...customer_cart.line_items,
+          REQUEST_DATA
+        ],
+        current_subtotal_price: addLineItemSubTotalPrice(customer_cart.line_items) + (line_item?.price*line_item?.quantity)
+      };
 
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+    } else {
+      status = 422, text = "ERROR: Cannot find documetn 😓. DRAFT_ORDERS";
+    }
+
+
+    try {
+      // Update Doc
+      await updateDocument(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
+
+      status = 200, text = "SUCCESS: Product added to the cart 🔥.  =>  car_" + FB_CART_UUID;
     } catch (e) {
       res.status(status).json(text);
     }
@@ -286,14 +221,18 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
    * @param FB_MERCHANT_UUID: string
    * @param cart: Cart! -- see interface object inside types file  
    */
-   app.put("/cart/update/remove_product", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ";
-    let customer_cart;
+   app.put("/cart/update/remove-product", async (req: express.Request, res: express.Response) => {
+    // Status to send back to client
+    let status = 500,
+    text = "ERROR: Likely internal -- Check Logs 😓. ",
+    customer_cart,
+    FB_CART_UUID: string = req.body.cart_uuid,
+    VARIANT_ID: string =  req.body.var_uuid;
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
-    const VARIANT_ID: string = "var_9a5ad7c81e94e889b9e9f089ca2d14";
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+
+    FB_CART_UUID = FB_CART_UUID.substring(4);
 
     try {
       // Fetch Cart Obj from primary DB
@@ -303,7 +242,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       if (customer_cart) {
         customer_cart = {
           ...customer_cart,
-          line_item: variants.filter((v) => {
+          line_items: variants.filter((v) => {
             return v.variant_id != VARIANT_ID
           })
         } 
@@ -317,10 +256,9 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     }
 
     try {
-      const result = await updateSubcollectionDocumentWithID(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
-      console.log(result);
+      await updateDocument(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
 
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      status = 200, text = "SUCCESS: Product removed from the cart 🗑. =>  car_" + FB_CART_UUID ;
     } catch (e) {
       res.status(status).json(text);
     }
@@ -331,57 +269,67 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
   /**
    * Link Customer with an existing Cart! 
    * @param FB_MERCHANT_UUID: string
-   * @param cart: Cart! -- see interface object inside types file  
+   * @param FB_CUSTOMER_ID: string
+   * @param FB_CUSTOMER_ID: string
    */
-   app.put("/cart/update/link_customer", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ";
-    let customer_cart, customer;
+   app.put("/cart/update/link-customer", async (req: express.Request, res: express.Response) => {
+    // Status to send back to client
+    let status = 500,
+    text = "ERROR: Likely internal -- Check Logs 😓. ",
+    cart: Cart,
+    customer,
+    FB_CART_UUID: string = req.body.cart_uuid,
+    FB_CUSTOMER_ID: string = req.body.cus_uuid;
+
+    // UUID for DB
+    FB_CUSTOMER_ID = FB_CUSTOMER_ID.substring(4);
+    FB_CART_UUID = FB_CART_UUID.substring(4);
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
-    let CUSTOMER_ID: string = "cus_"+ "I1wsLDtYwt61da2hhODm" //crypto.randomBytes(10).toString("hex");
-    console.log(CUSTOMER_ID);
-
-    CUSTOMER_ID = CUSTOMER_ID.substring(4);
-    console.log(CUSTOMER_ID);
-
-    // TODO: If HIGH_RISK then gateway == SQUARE
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
 
     try {
-      customer = await getDocument("merchants", FB_MERCHANT_UUID, "customers", CUSTOMER_ID);
-      console.log(customer);
+      customer = await getDocument("merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_ID);
 
     } catch (e) {
       res.status(status).json(text);
     }
 
+    // try {
+    //   customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
+    //   cart = {
+    //     ...customer_cart,
+    //     updated_at: admin.firestore.Timestamp.now()
+    //   }
+    //   if (cart) {
+    //     cart = {
+    //       ...customer_cart,
+    //       customer_id: "cus_" + FB_CUSTOMER_ID,
+    //       addresses: customer?.addresses ? customer?.addresses : [],
+    //       email: customer?.email ? customer?.email : "",
+    //       updated_at: admin.firestore.Timestamp.now()
+    //     };
+
+    //   } else {
+    //     status = 422, text = "ERROR: Cannot find documetn 😓. DRAFT_ORDERS";
+    //   }
+
+    // } catch (e) {
+    //   res.status(status).json(text);
+    // }
+
+    // TODO: Check to see if cart exists == All needed is UUID
+    cart = {
+      customer_id: "cus_" + FB_CUSTOMER_ID,
+      addresses: customer?.addresses ? customer?.addresses : [],
+      email: customer?.email ? customer?.email : "",
+      updated_at: admin.firestore.Timestamp.now()
+    };
+
     try {
-      customer_cart = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
+      await updateDocument(cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
 
-      console.log(customer_cart);
-      
-      if (customer_cart) {
-        customer_cart = {
-          ...customer_cart,
-          customer_id: CUSTOMER_ID,
-          shipping: customer?.addresses ? customer?.addresses : [],
-          contact_email: customer?.email ? customer?.email : ""
-        } 
-        console.log(customer_cart);
-      } else {
-        status = 422, text = "ERROR: Cannot find documetn 😓. DRAFT_ORDERS";
-      }
-
-    } catch (e) {
-      res.status(status).json(text);
-    }
-
-    try {
-      const result = await updateSubcollectionDocumentWithID(customer_cart, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
-      console.log(result);
-
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      status = 200, text = "SUCCESS: Customer linked to cart 🔥. =>  car_" +  FB_CART_UUID;
     } catch (e) {
       res.status(status).json(text);
     }

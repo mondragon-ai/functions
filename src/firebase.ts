@@ -167,7 +167,7 @@ export const createDocument = async (
   } 
 
   if (docRef.exists) {
-    return await docRef.data();
+    return docRef.data();
   }
 
   return

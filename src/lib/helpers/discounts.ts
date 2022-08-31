@@ -1,14 +1,6 @@
 import * as admin from "firebase-admin";
 import {addLineItemSubTotalPrice} from "./carts"
-
-interface LineItem {
-  variant_id: string, 
-  title: string,
-  price: number,
-  hasDiscount: boolean,
-  isHighRisk?: boolean,
-  applied_discount?: number
-} 
+import {LineItem} from '../types/orders'
 
 
 interface DicsountCode {
@@ -81,7 +73,7 @@ export const discountValueTypeIsFixed = (
  * @returns {Cart}
  */
 export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUNT: FirebaseFirestore.DocumentData): Cart => {
-  const line_items: LineItem[] = CART?.line_item || [];
+  const line_items: LineItem[] = CART?.line_items ;
   let SUB_TOTAL_PRICE: number = 0,
   LINEITEM_DISCOUNT_TOTAL: number = 0,
   DISCOUNT_VALUE: number =  DISCOUNT?.value || 0,
@@ -112,7 +104,7 @@ export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUN
       // Count all eligible items in cart
       let totalLineItemsWithDiscount = 0
       line_items.forEach((v, i) => {
-        if (v.hasDiscount) {
+        if (v.has_discount) {
           totalLineItemsWithDiscount = totalLineItemsWithDiscount + 1
         }
       });
@@ -122,7 +114,7 @@ export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUN
     } else {
       // Add subtotal for all eligable items in cart
       line_items.forEach((v, i) => {
-        if (v.hasDiscount) {
+        if (v.has_discount) {
           LINEITEM_DISCOUNT_TOTAL = LINEITEM_DISCOUNT_TOTAL + v.price;
         }
       });

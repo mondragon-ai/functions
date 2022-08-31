@@ -64,9 +64,10 @@ export const discountRoutes = async (app: express.Router) => {
             variant_id: "var_jojn039j20KJ302", 
             title: "Gas Card",
             price: 900,
-            hasDiscount: true,
+            has_discount: true,
             applied_discount: 100,
             isHighRisk: false,
+            quantity: 1
           }
         ],
         collections:[""],

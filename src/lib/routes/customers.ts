@@ -71,20 +71,18 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
     }
 
     try {
-      // Make sure customer exists
+      // Update Documents if UUID exists.
       if (FB_CUSTOMER_UUID != "") {
-        // Update Documents if UUID exists.
         await updateDocument(
           {
-            ...customer,
             id: `cus_${FB_CUSTOMER_UUID}`
           },
           "merchants",
           FB_MERCHANT_UUID,
-          "users",
+          "customers",
           FB_CUSTOMER_UUID
         );
-        status = 200, text = "SUCCESS: User created & added to primary DB. 🧙🏼‍♂️. CustomerID! = " + FB_CUSTOMER_UUID;
+        status = 200, text = "SUCCESS: User created & added to primary DB. 🧙🏼‍♂️. CustomerID! = cus_" + FB_CUSTOMER_UUID;
 
       } else {
         status = 400, text = "ERROR: User NOT created -- Likely related with FB. 🤯" + FB_CUSTOMER_UUID;

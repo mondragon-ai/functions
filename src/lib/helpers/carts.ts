@@ -1,13 +1,4 @@
-
-interface LineItem {
-  variant_id: string, 
-  title: string,
-  price: number,
-  hasDiscount: boolean,
-  isHighRisk?: boolean,
-  applied_discount?: number
-} 
-
+import { LineItem } from "../types/orders";
 /**
  * Add Line Items Sub Total of Cart
  * @param LINE_ITEMS 
