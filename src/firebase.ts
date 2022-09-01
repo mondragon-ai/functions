@@ -253,15 +253,15 @@ return docRef;
   code: string,
   merchant_uuid: string,
 ) => {
-  let USER_ID = "";
+  let DISCOUNT_UUID: string = "";
   const docs = await db.collection("merchants").doc(merchant_uuid).collection("discounts").where("code", "==", code).get();
 
   //TODO: Consier using logic to control ONLY one store instance
   console.log(docs.size);
 
-  await docs.forEach((d)=> {console.log(d.data()); USER_ID = d.id;})
+  docs.forEach((d)=> {console.log(d.data()); DISCOUNT_UUID = d.id;})
 
-  return USER_ID;
+  return DISCOUNT_UUID;
 
 }
 
@@ -301,6 +301,35 @@ return docRef;
   
 }
 
+
+export interface SearchParams {
+  key: string, 
+  value: string
+}
+
+export const searchAndGetWithKey = async (
+  search_params: SearchParams,
+  collection: string,
+  document?: string,
+  subCollection?: string,
+  subDocument?: string
+) => {
+
+  let document_id: string = "";
+
+  const collectionRef: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await db
+  .collection(collection)
+  .doc(document|| "")
+  .collection(subCollection || "")
+  .where(search_params.key, "==", search_params.value)
+  .get()
+
+  collectionRef.forEach((v) => {
+    document_id = v.id 
+  });
+
+  return document_id;
+};
 
 // TODO: Initialize Storage Bucket
 // TODO: Export Storage Bucket 

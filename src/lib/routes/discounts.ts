@@ -3,9 +3,11 @@ import * as admin from "firebase-admin";
 import {
   createDocument,
   deleteDocumentWithID,
+  getCollection,
   getDiscountWithCode,
   getDocument,
-  updateSubcollectionDocumentWithID
+  updateDocument,
+  // updateSubcollectionDocumentWithID
 } from "../../firebase";
 import { addDiscountToCart } from "../helpers/discounts";
 import {
@@ -27,55 +29,48 @@ export const discountRoutes = async (app: express.Router) => {
   /**
    * Create NEW discount object! 
    * @param FB_MERCHANT_UUID: string
-   * @param FB_CART_UUID: string
+   * @param new_data: Discount
    * @param FB_DISCOUNT_UUID: string  
    */
    app.post("/discounts/create", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ";
-    let DISCOUNT: Discount;
+    let status = 500, 
+    text = "ERROR: Likely internal -- Check Logs 😓. ",
+    DISCOUNT: Discount = req.body.new_data,
+    FB_DISCOUNT_UUID: string = "";
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    let FB_DISCOUNT_UUID: string = "";
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID; 
 
     DISCOUNT = {
-      created_at: `${admin.firestore.Timestamp.now()}`,
-      updated_at: `${admin.firestore.Timestamp.now()}`,
-      value_type: "FIXED",
-      automatic_type: "TAGS",
-      type: "CART",
-      status: false,
-      isAutomatic: true,
-      code: "",
-      once_per_customer: false,
-      usage_limit: 1000,
-      all_products: true,
+      title: DISCOUNT.title || "",
+      value: DISCOUNT.value || 5,
+      created_at: admin.firestore.Timestamp.now(),
+      updated_at: admin.firestore.Timestamp.now(),
+      value_type: DISCOUNT.value_type || "",
+      automatic_type: DISCOUNT.automatic_type || "",
+      type: DISCOUNT.type || "",
+      status: DISCOUNT.status || false,
+      isAutomatic: DISCOUNT.isAutomatic || false,
+      code: DISCOUNT.code || "",
+      once_per_customer:  DISCOUNT.once_per_customer || false,
+      usage_limit:  DISCOUNT.usage_limit || 0,
+      all_products: DISCOUNT.all_products ||  true,
       pre_reqs: {
-        customer_tags: ["VIP_MEMBER"],
-        variant_ids: [""],
-        collections:[""],
-        sub_total: 0,
-        goal_target: 10000
+        customer_tags:  DISCOUNT.pre_reqs?.customer_tags || [],
+        variant_ids:  DISCOUNT.pre_reqs?.variant_ids ||  [],
+        collections:  DISCOUNT.pre_reqs?.collections || [],
+        sub_total:  DISCOUNT.pre_reqs?.sub_total ||  0,
+        goal_target: DISCOUNT.pre_reqs?.goal_target || 0
       },
       entitled: {
-        customer_tags: ["VIP_MEMBER"],
-        line_items: [
-          {
-            variant_id: "var_jojn039j20KJ302", 
-            title: "Gas Card",
-            price: 900,
-            has_discount: true,
-            applied_discount: 100,
-            isHighRisk: false,
-            quantity: 1
-          }
-        ],
-        collections:[""],
+        customer_tags: DISCOUNT.entitled?.customer_tags || [],
+        variant_ids: DISCOUNT.entitled?.variant_ids || [],
+        collections: DISCOUNT.entitled?.collections || [],
       },
       omitted: {
-        customer_tags: [""],
-        line_items: [],
-        collections:[""],
+        customer_tags: DISCOUNT.entitled?.customer_tags || [],
+        variant_ids: DISCOUNT.entitled?.variant_ids || [],
+        collections: DISCOUNT.entitled?.collections || [],
       },
     }
 
@@ -88,8 +83,16 @@ export const discountRoutes = async (app: express.Router) => {
 
     // Update cart document
     try {
-      await updateSubcollectionDocumentWithID({id: "dis_" + FB_DISCOUNT_UUID}, "merchants", FB_MERCHANT_UUID, "discounts", FB_DISCOUNT_UUID);
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      await updateDocument(
+        {id: "dis_" + FB_DISCOUNT_UUID},
+        "merchants",
+        FB_MERCHANT_UUID,
+        "discounts",
+        FB_DISCOUNT_UUID
+      );
+      status = 200,
+      text = "SUCCESS: Draft order created 🔥. => dis_" + FB_DISCOUNT_UUID;
+
     } catch (e) {
       status = 422, text = "ERROR: Likely internal -- Check Logs 😓. GETTING DOCUMENT.";
     }
@@ -104,15 +107,18 @@ export const discountRoutes = async (app: express.Router) => {
    * @param FB_DISCOUNT_UUID: string  
    */
    app.post("/discounts/add-discount", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ";
-    let customer_cart, discount;
+    let status = 500,
+    text = "ERROR: Likely internal -- Check Logs 😓. ",
+    customer_cart, 
+    discount,
+    FB_DISCOUNT_UUID: string = req.body.dis_uuid || "",
+    FB_CART_UUID: string = req.body.car_uuid || "";
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    const FB_CART_UUID: string = "iBXkOR1TI7rH0dMzZZDr";
-    const FB_DISCOUNT_UUID: string = "zfWAj266AK4fy5vIdQ4a";
-    let CUSTOMER_ID: string = "cus_"+ "3uodpXUJNbYY6Yhj3qBF"; 
-    CUSTOMER_ID = CUSTOMER_ID.substring(4);
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID; 
+
+    FB_DISCOUNT_UUID = FB_DISCOUNT_UUID.substring(4);
+    FB_CART_UUID = FB_CART_UUID.substring(4);
 
     try {
       // Fetch Cart Object 
@@ -130,7 +136,7 @@ export const discountRoutes = async (app: express.Router) => {
       discount = await getDocument(
         "merchants", 
         FB_MERCHANT_UUID, 
-        "carts", 
+        "discounts", 
         FB_DISCOUNT_UUID);
     } catch (e) {
       status = 422, text = "ERROR: Likely internal -- Check Logs 😓. GETTING DISCOUNT DOCUMENT.";
@@ -138,16 +144,17 @@ export const discountRoutes = async (app: express.Router) => {
 
     // Helper Function to handle {CART || LINEITEM}
     customer_cart = addDiscountToCart(customer_cart || {}, discount || {});
+    console.log("CART: \n", customer_cart)
 
     try {
       // Update cart document
-      await updateSubcollectionDocumentWithID(
+      await updateDocument(
         customer_cart,
         "merchants",
         FB_MERCHANT_UUID,
         "carts",
         FB_CART_UUID);
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      status = 200, text = "SUCCESS: Discount added to cart 🔥.  cart => car_"+ FB_CART_UUID + ". Discount => dis_" + FB_DISCOUNT_UUID;
     } catch (e) {
       status = 422, text = "ERROR: Likely internal -- Check Logs 😓. GETTING DOCUMENT.";
     }
@@ -182,24 +189,44 @@ export const discountRoutes = async (app: express.Router) => {
   /**
    * Get Discount with an code from Discount Collection! 
    * @param FB_MERCHANT_UUID: string
-   * @param FB_DISCOUNT_UUID: string  
+   * @param CODE: string  
    */
-   app.get("/discounts", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ", discount;
+   app.post("/discounts", async (req: express.Request, res: express.Response) => {
+    let status = 500,
+    text = "ERROR: Likely internal -- Check Logs 😓. ",
+    discount: Discount[] = [],
+    dis_uuid: string = "";
 
     // Req path data for primary DB
-    const FB_MERCHANT_UUID: string = "QilaBD5FGdnF9iX5K9k7";
-    let FB_DISCOUNT_UUID: string = "UBIhb89NI";
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID || "";
+    const CODE: string = req.body.CODE || "";
 
     // Get Discount with Disocunt Code
     try {
-      discount = await getDiscountWithCode(FB_DISCOUNT_UUID, FB_MERCHANT_UUID);
-      status = 200, text = "SUCCESS: Draft order created 🔥. ";
+      if (CODE == "")  {
+        const result = await getCollection("merchants", FB_MERCHANT_UUID, "discounts");
+
+        result.forEach((d)=> {
+          console.log(d.data());
+
+          discount = [
+            ...discount,
+            d.data()
+          ];
+          
+        });
+
+        console.log(discount);
+
+      } else {
+        dis_uuid = await getDiscountWithCode(CODE, FB_MERCHANT_UUID);
+        status = 200, text = "SUCCESS: discount fetched:  dis_" + dis_uuid;
+      }
     } catch (e) {
       status = 422, text = "ERROR: Likely internal -- Check Logs 😓. GETTING DISCOUNT DOCUMENT.";
     }
 
-    res.status(status).json({m: text, d: discount});
+    res.status(status).json({m: text, d: discount || dis_uuid});
    });
 
    

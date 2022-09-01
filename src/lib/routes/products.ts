@@ -42,8 +42,9 @@ export interface Variant
     option2?: string,
     option3?: string,
     quantity?: number,
-    status?: string,
-    updated_at?: string,
+    status?: boolean,
+    updated_at?: FirebaseFirestore.Timestamp,
+    created_at?: FirebaseFirestore.Timestamp
     image_url?: string,
     inventory?: number
   }
@@ -52,6 +53,7 @@ export interface Variant
 export interface Product {
   id?: string,
   title?: string,
+  quantity?: number,
   handle?: string,
   description?: string,
   status?: boolean,
@@ -484,8 +486,8 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
         price: 500,
         sku: "TESTSKU-UPDATE",
         variant_id: "var_08034098",
-        status: "OUT_OF_STOCK",
-        updated_at: "DATE",
+        // status: "OUT_OF_STOCK",
+        updated_at: admin.firestore.Timestamp.now(),
         image_url: "",
         inventory: 1000, 
         option1: "M",

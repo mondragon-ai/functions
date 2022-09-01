@@ -1,56 +1,6 @@
 import * as admin from "firebase-admin";
 import {addLineItemSubTotalPrice} from "./carts"
-import {LineItem} from '../types/orders'
-
-
-interface DicsountCode {
-  id: string,
-  title: string,
-  description: string,
-  type: string,
-  value: number
-}
-
-interface ShippingLines {
-  id: string,
-  title: string,
-  price: number
-}
-
-interface Address {
-  name: string,
-  type: string,
-  line1: string,
-  line2: string,
-  city: string, 
-  state: string, 
-  zip: string
-}
-
-
-interface Cart {
-  type?: string,
-  isActive?: boolean,
-  gateway?: string,
-  used_gift_card?: boolean,
-  hasDiscount?: boolean,
-  gift_car?: string
-  discount_code?: DicsountCode,
-  browser_ip?: string,
-  line_item?: LineItem[],
-  current_subtotal_price?: number, 
-  current_discount_value?: number,
-  current_gift_card_value?: number, 
-  current_total_price?: number, 
-  customer_id?: string,
-  email?: string,
-  tags?: string[],
-  note?: string,
-  addresses?: Address[],
-  shipping_line?: ShippingLines,
-  created_at?: string,
-  updated_at: string,
-};
+import {LineItem, Cart, } from '../types/orders'
 
 /**
  * check if the Discount.Type == FIXED || PERCENTAGE
@@ -77,10 +27,10 @@ export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUN
   let SUB_TOTAL_PRICE: number = 0,
   LINEITEM_DISCOUNT_TOTAL: number = 0,
   DISCOUNT_VALUE: number =  DISCOUNT?.value || 0,
-  cart: Cart = {
-    ...CART,
-    updated_at: `${admin.firestore.Timestamp.now()}`
-  };
+  cart: Cart = {};
+
+  console.log("CUSTOMER_CART: \n", CART)
+  console.log("\n\DISCOUNT: \n", DISCOUNT)
 
   //Reset Sub total
   SUB_TOTAL_PRICE = addLineItemSubTotalPrice(line_items);
@@ -128,7 +78,7 @@ export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUN
   cart = {
     ...cart,
     current_subtotal_price: SUB_TOTAL_PRICE,
-    updated_at: `${admin.firestore.Timestamp.now()}`,
+    updated_at: admin.firestore.Timestamp.now(),
     current_discount_value: DISCOUNT_VALUE
   }
 

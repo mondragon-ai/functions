@@ -14,14 +14,14 @@ price: number
 }
 
 export interface Address {
-  id?: string,
+  id?: string | "",
   title?: string,
   isDefault?: boolean,
   type?: "BOTH" | "SHIPPING" | "BILLING",
-  line1: string,
-  line2: string,
-  city: string, 
-  state: string, 
+  line1?: string,
+  line2?: string,
+  city?: string, 
+  state?: string, 
   zip?: string
 }
 
@@ -56,7 +56,7 @@ note?: string,
 addresses?: Address[],
 shipping_line?: ShippingLines,
 created_at?: FirebaseFirestore.Timestamp,
-updated_at: FirebaseFirestore.Timestamp,
+updated_at?: FirebaseFirestore.Timestamp,
 };
 
 export interface DraftOrder {

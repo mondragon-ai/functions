@@ -10,31 +10,33 @@ goal_target: number
 
 export interface Entitled {
 collections?: string[],
-line_items?: LineItem[],
+variant_ids?: LineItem[],
 customer_tags?: string[],
 }
 
 export interface Omitted {
 collections?: string[],
-line_items?: LineItem[],
+variant_ids?: LineItem[],
 customer_tags?: string[],
 }
 
 export interface Discount {
-id?: string,
-automatic_type: string,
-created_at: string,
-updated_at: string,
-value_type: string
-type: string,
-status: boolean
-isAutomatic: boolean,
-code: "",
-once_per_customer: false,
-usage_limit: 1000,
-pre_reqs: DiscountPreReqs,
-entitled: Entitled,
-omitted: Omitted
-all_products: boolean,
+    value?: number,
+    title?: string,
+    id?: string,
+    automatic_type?: "TAGS" | "GOALS" | "PRODUCTS" | "COLLECTION" | "",
+    created_at?: FirebaseFirestore.Timestamp,
+    updated_at?: FirebaseFirestore.Timestamp,
+    value_type?: string
+    type?: "CART" | "LINEITEM" | "",
+    status?: boolean
+    isAutomatic?: boolean,
+    code?: string,
+    once_per_customer?: boolean,
+    usage_limit?: number | null,
+    pre_reqs?: DiscountPreReqs,
+    entitled?: Entitled,
+    omitted?: Omitted
+    all_products?: boolean,
 }
     
