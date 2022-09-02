@@ -92,31 +92,10 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     FB_CART_UUID: string = req.body.cart_uuid;
     FB_CART_UUID = FB_CART_UUID.substring(4);
 
+    let REQUEST_DATA: DraftOrder;
+
     // Req path data for primary DB
     const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
-
-    // Req Data To Push to primary DB
-    let REQUEST_DATA: DraftOrder = {
-      payment_status: "UNPAID",
-      fullfillment_status: "UNFULLFILLED",
-      id: "dro_" + FB_CART_UUID,
-      type: "DRAFT",
-      isActive: true,
-      checkout_url: "",
-      created_at: admin.firestore.Timestamp.now(),
-      updated_at: admin.firestore.Timestamp.now(),
-      addresses: [
-        {
-          // name: "Obi Kanobi",
-          type: "BOTH",
-          line1: "420 Bigly Ln",
-          line2: "",
-          city: "Fayetteville", 
-          state: "Arkansas", 
-          zip: "72704"
-        }
-      ]
-    };
 
     try {
       // Fetch Cart obj from primary DB
@@ -129,14 +108,27 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       res.status(status).json(text);
     }
 
+    // Req Data To Push to primary DB
+    REQUEST_DATA = {
+      ...customer_cart,
+      payment_status: "UNPAID",
+      fullfillment_status: "UNFULLFILLED",
+      id: "dro_" + FB_CART_UUID,
+      type: "DRAFT",
+      isActive: true,
+      phone: "",
+      checkout_url: "",
+      created_at: admin.firestore.Timestamp.now(),
+      updated_at: admin.firestore.Timestamp.now()
+    };
+ 
+
     // Check If HIGH_RISK then gateway == SQUARE
     REQUEST_DATA = {
       ...REQUEST_DATA,
       ...customer_cart,
-      gateway: checkIfCartIsHighRisk(customer_cart?.line_item)
+      gateway: checkIfCartIsHighRisk(customer_cart?.line_items)
     }
-
-    // TODO: get checkout URL 
 
     try {
       // Create new document with CART id

@@ -60,7 +60,8 @@ updated_at?: FirebaseFirestore.Timestamp,
 };
 
 export interface DraftOrder {
-  id: string,
+  id?: string,
+  phone?: string,
   checkout_url?: string
   type?: string,
   isActive?: boolean,

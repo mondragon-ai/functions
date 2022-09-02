@@ -1,7 +1,7 @@
 import * as express from "express";
-import { getDocument, updateCustomerDocumentWithID } from "../../firebase";
-import { createStripeCustomer } from "../../stripe";
-import {StripeCustomer} from "../types/stipe"
+import { getDocument, updateDocument } from "../../firebase";
+import { createStripeCustomer, handleStripeChargeWithCard } from "../../stripe";
+import {EcomReturn, StripeCustomer} from "../types/stipe"
 
 export const paymentRoutes = (app: express.Router) => {
   app.get("/payments/test", async (req: express.Request, res: express.Response) => {
@@ -57,7 +57,7 @@ export const paymentRoutes = (app: express.Router) => {
         }
       }
       try {
-        await updateCustomerDocumentWithID(data, "merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
+        await updateDocument(data, "merchants", FB_MERCHANT_UUID, "customers", FB_CUSTOMER_UUID);
         text = "SUCCESS: Customer created with processing and is ready to be charged 🤑. ";
         status = 200;
       } catch (e) {
@@ -74,8 +74,37 @@ export const paymentRoutes = (app: express.Router) => {
    * @param FB_MERCHANT_UUID
    * @param FB_CUSTOMER_UUID
    */
-  app.post("/payments/charge", async () => {
+  app.post("/payments/charge", async (req: express.Request, res: express.Response) => {
+    let status: number = 500, 
+    text: string = "ERROR: Likley internal problem payment 🤷🏻‍♂️";
 
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+    const price: number = req.body.price;
+
+    let CUS_UUID: string = req.body.cus_uuid;
+
+    let customer: any = {}
+
+    try {
+      customer = await getDocument("merchants", FB_MERCHANT_UUID, "customers", CUS_UUID);
+
+    } catch (e) {
+      text = text + "fetchign customer docuemnt";
+    }
+    try {
+      let charge_result: EcomReturn = await handleStripeChargeWithCard(customer?.stripe.STRIPE_UUID, customer?.email, price );
+
+      if (charge_result.status >= 300) {
+        text = text + "charging. Likely wrong data.";
+      } else {
+        console.log(charge_result)
+      }
+      
+
+    } catch (e) {
+      text = text + "charging";
+    }
+    res.status(status).json(text);
   });
 
   /**

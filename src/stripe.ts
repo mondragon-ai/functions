@@ -24,9 +24,11 @@ export const createStripeCustomer = async (
   text: string = "ERROR: Linkly internal. check stripe logs. 💩 ";
   const {address, name, email, metadeta, phone, description} = stripeCustomer
 
+  console.log(stripeCustomer)
+
   try {
     // Create Stripe customer
-    STRIPE_UUID = await stripe.customers.create({
+    const stripeCustomer = await stripe.customers.create({
       address: {
         line1: address.line1 || "420 Bigly st",
         line2: address.line2  || "",
@@ -42,12 +44,16 @@ export const createStripeCustomer = async (
         external_id: "cus_" + ""
       }
     });
+    STRIPE_UUID = stripeCustomer.id
   } catch (e) {
     return {
       status: status, 
       text: text + " Creating Customer.",
     }
   }
+
+
+  console.log(STRIPE_UUID)
 
   try {
     // Create a SetUp Intent to get client side secrete key

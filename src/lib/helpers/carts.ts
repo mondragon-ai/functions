@@ -28,7 +28,7 @@ export const checkIfCartIsHighRisk = (
 ): string => {
   let gataway: string = "STRIPE";
 
-  LINE_ITEMS.forEach((v, i) => {
+  LINE_ITEMS?.forEach((v, i) => {
     if (v.isHighRisk) {
       gataway = "SQUARE";
     }

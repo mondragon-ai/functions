@@ -5,6 +5,7 @@ import { createDocument, getCollection, getDocument, updateDocument, updateSubco
 import { handleDataToChange } from "../helpers/firebase";
 import * as crypto from "crypto";
 import { Price } from "../types/customers";
+import { createVariantsFromOptions } from "../helpers/products";
 
 export interface Image 
   {
@@ -61,7 +62,7 @@ export interface Product {
   created_at?: FirebaseFirestore.Timestamp | null,
   updated_at: FirebaseFirestore.Timestamp | null,
   has_recurring?: boolean,
-  price?: Price,
+  price?: number,
   has_discount?: boolean,
   discounts_eliglble?: string[],
   taxable?: boolean,
@@ -327,19 +328,22 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
     // Req Data: Product Data to update
     let OPTIONS_DATA: Option[] = [],
+    // VARIANTS: Variant[] = [],
     REQUEST_DATA: Option[] = req.body.update_data || null,
+    PRODUCT_DATA: any,
     FB_PRODUCT_UUID: string = req.body.product_uuid || "";
     FB_PRODUCT_UUID = FB_PRODUCT_UUID.substring(4);
 
     try {
       // Get PRODUCT_UUID product document
-      const PRODUCT_DATA = await getDocument(
+      PRODUCT_DATA = await getDocument(
         "merchants",
         FB_MERCHANT_UUID,
         "products",
         FB_PRODUCT_UUID
       );
-      OPTIONS_DATA = PRODUCT_DATA?.options || []
+      OPTIONS_DATA = PRODUCT_DATA?.options || [];
+      // VARIANTS = PRODUCT_DATA?.variants || [];
 
       if (PRODUCT_DATA) {
 
@@ -360,6 +364,14 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
     }
 
     // if option1 then [variants * options in option1]
+    const result = createVariantsFromOptions(
+      PRODUCT_DATA,
+      OPTIONS_DATA[0]?.option1 || [],
+      OPTIONS_DATA[1]?.option2 || [],
+      OPTIONS_DATA[2]?.option3 || [],
+    );
+
+    // for each variant check if variant.option1 == one 
     // if option1 && option2 then [variants * options in option1] * [variants * options in option2]
     // if option1 && option2 && option3 then [variants * options in option1] * [variants * options in option2] * [variants * options in option3]
 
@@ -367,9 +379,10 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
       if (status != 422) {
         // Update primary DB
-        await updateSubcollectionDocumentWithID(
+        await updateDocument(
           {
-            options: OPTIONS_DATA
+            options: OPTIONS_DATA,
+            varaints: result
           },
           "merchants",
           FB_MERCHANT_UUID,

@@ -32,24 +32,26 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
   /**
      // TODO: REG EX CHECK ON VALID EMAIL BOTH FE && BE
    * Create NEW store customer instance in Primary DB. Checked to make sure the customer does not already exist
-   * @param FB_MERCHANT_UUID
-   * @param Customer
+   * @param FB_MERCHANT_UUID: string
+   * @param new_data: Customer
    */
   app.post("/customers/create", async (req: express.Request, res: express.Response) => {
+    // Status Update for client
+    let status: number = 500,
+    text: string = "ERROR: Likley internal -- Check Logs. 😅. ";
+
     // Req data
     const FB_MERCHANT_UUID = req.body.FB_MERCHANT_UUID;
     let customer: NewCustomer = req.body.new_data,
-    IS_NEW = true;
-
-    // Data to update
-    let status: number = 500,
-    text: string = "ERROR: Likley internal -- Check Logs. 😅. ",
     email: string = customer?.email || "",
+    IS_NEW = true,
     FB_CUSTOMER_UUID: string = "";
 
+    // Working with Addressess
     let addresses: Address[] = customer?.addresses || [];
     let addresWithId: Address[] = []
 
+    // created uuids for the Address[]
     if (addresses?.length != 0) {
       addresses?.forEach((v, i) => {
         addresWithId.push(
@@ -61,6 +63,7 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
       });
     } 
 
+    // Finalize data for customer 
     customer = {
       ...customer,
       addresses: addresWithId,
@@ -75,33 +78,37 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
         status = 422, text = "ERROR: Valid email required. 🤬"; 
 
       } else {
-
         // Return standard return obj
         FB_CUSTOMER_UUID = await searchAndGetWithKey({
           key: "email",
           value: email
         },"merchants",FB_MERCHANT_UUID,"customers","");
 
-        console.log("68: ID => ", FB_CUSTOMER_UUID);
-
-        if (FB_CUSTOMER_UUID == "") {
-          // Create NEW /customers/document
-          FB_CUSTOMER_UUID = await createDocument(
-            "merchants",
-            FB_MERCHANT_UUID,
-            "customers", "",
-            customer
-          );
-
-          console.log("68: ID => ", FB_CUSTOMER_UUID);
-        } else {
-          IS_NEW = false;
-          status = 202, text = "SUCCESS: Account already exits. Try loging in? 🤔 => cus_" + FB_CUSTOMER_UUID; 
-        }
       };
       
     } catch (e) {
       text = text + "  creating new document.";
+    }
+
+    try {
+      // Create the Doc 
+      if (FB_CUSTOMER_UUID == "") {
+        // Create NEW /customers/document
+        FB_CUSTOMER_UUID = await createDocument(
+          "merchants",
+          FB_MERCHANT_UUID,
+          "customers", "",
+          customer
+        );
+
+        console.log("68: ID => ", FB_CUSTOMER_UUID);
+      } else {
+        IS_NEW = false;
+        status = 202, text = "SUCCESS: Account already exits. Try loging in? 🤔 => cus_" + FB_CUSTOMER_UUID; 
+      }
+      
+    } catch (e) {
+      
     }
 
 
