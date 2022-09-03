@@ -2,7 +2,7 @@
 // import { updateCustomerDocumentWithID } from "./firebase";
 // import * as functions from "firebase-functions";
 import { LineItem } from "./lib/types/orders";
-import {EcomReturn, StripeCustomer} from "./lib/types/stipe"
+import {EcomReturn, StripeCustomer} from "./lib/types/stripe"
 
 // ============================================================================================================
 const Stripe = require("stripe");

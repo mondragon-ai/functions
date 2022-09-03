@@ -76,10 +76,18 @@ export const addDiscountToCart = (CART: FirebaseFirestore.DocumentData , DISCOUN
 
   // Reset Cart obj to push back to primary DB to update
   cart = {
-    ...cart,
+    ...CART,
     current_subtotal_price: SUB_TOTAL_PRICE,
     updated_at: admin.firestore.Timestamp.now(),
-    current_discount_value: DISCOUNT_VALUE
+    current_discount_value: DISCOUNT_VALUE,
+    has_discount: true,
+    discount_code: {
+      id: DISCOUNT?.id || "",
+      title: DISCOUNT?.title || "",
+      type: DISCOUNT?.type || "",
+      value_type: DISCOUNT?.value_type || "",
+      value: DISCOUNT?.value || ""
+    }
   }
 
   return cart

@@ -12,6 +12,7 @@ import {
   addLineItemSubTotalPrice,
   checkIfCartIsHighRisk
 } from "../helpers/carts";
+import { addDiscountToCart } from "../helpers/discounts";
 import {
   LineItem,
   DraftOrder,
@@ -150,7 +151,7 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     // Status to update
     let status = 500, 
     text = "ERROR: Likely internal -- Check Logs 😓. ",
-    customer_cart, 
+    customer_cart: any, 
     FB_CART_UUID: string = req.body.cart_uuid; 
 
     FB_CART_UUID = FB_CART_UUID.substring(4);
@@ -195,6 +196,11 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
       status = 422, text = "ERROR: Cannot find documetn 😓. DRAFT_ORDERS";
     }
 
+    if ( customer_cart?.discount_code ) {
+      // Helper Function to handle {CART || LINEITEM}
+      customer_cart = addDiscountToCart(customer_cart || {}, customer_cart?.discount_code || {});
+      console.log("CART: \n", customer_cart)
+    }
 
     try {
       // Update Doc
@@ -245,6 +251,12 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
 
     } catch (e) {
       res.status(status).json(text);
+    }
+
+    if ( customer_cart?.discount_code ) {
+      // Helper Function to handle {CART || LINEITEM}
+      customer_cart = addDiscountToCart(customer_cart || {}, customer_cart?.discount_code || {});
+      console.log("CART: \n", customer_cart)
     }
 
     try {

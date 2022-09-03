@@ -1,10 +1,9 @@
 export interface DicsountCode {
-id: string,
-title: string,
-description: string,
-type: string,
-value_type: string,
-value: number
+  id: string,
+  title: string,
+  type: string,
+  value_type: string,
+  value: number,
 }
 
 export interface ShippingLines {

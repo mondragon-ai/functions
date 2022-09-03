@@ -1,4 +1,4 @@
-import {Address} from "../types/orders";
+import {Address} from "./orders";
 
 export interface EcomReturn {
   status: number, 
@@ -8,6 +8,8 @@ export interface EcomReturn {
     stripe_pm?: string,
     stripe_client_secrete?: string,
     stripe_pi?: string
+    any?: any
+    document_id?: string
   }
 };
 

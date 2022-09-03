@@ -1,7 +1,7 @@
 import * as express from "express";
 import { getDocument, updateDocument } from "../../firebase";
 import { createStripeCustomer, handleStripeChargeWithCard } from "../../stripe";
-import {EcomReturn, StripeCustomer} from "../types/stipe"
+import {EcomReturn, StripeCustomer} from "../types/stripe"
 
 export const paymentRoutes = (app: express.Router) => {
   app.get("/payments/test", async (req: express.Request, res: express.Response) => {
@@ -45,9 +45,10 @@ export const paymentRoutes = (app: express.Router) => {
     }
     const result = await createStripeCustomer(StripeCustomer);
 
-    if (result.status >= 300) {
-      text = result.text
-      status = result.status
+    status = result.status || status;
+    
+    if (status >= 300) {
+      text = result.text || text;
     } else {
       const data = {
         stripe: {
@@ -94,7 +95,8 @@ export const paymentRoutes = (app: express.Router) => {
     try {
       let charge_result: EcomReturn = await handleStripeChargeWithCard(customer?.stripe.STRIPE_UUID, customer?.email, price );
 
-      if (charge_result.status >= 300) {
+      status = charge_result.status || status
+      if (status >= 300) {
         text = text + "charging. Likely wrong data.";
       } else {
         console.log(charge_result)

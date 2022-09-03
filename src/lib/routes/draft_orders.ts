@@ -2,7 +2,7 @@ import * as express from "express";
 import { createDocument, getDocument, updateCustomerDocumentWithID, updateDocument } from "../../firebase";
 import { Address, DraftOrder } from "../types/orders";
 import * as admin from "firebase-admin";
-import { StripeCustomer } from "../types/stipe";
+import { StripeCustomer } from "../types/stripe";
 import { createStripeCustomer } from "../../stripe";
 import { getDefaultAddress } from "../helpers/orders";
 
@@ -129,9 +129,9 @@ export const draftOrderRoutes = async (app: express.Router) => {
 
     console.log(result);
 
-    if (result.status >= 300) {
-      text = result.text
-      status = result.status
+    status = result.status || status
+    if (status >= 300) {
+      text = result.text || text
     } else {
       const data = {
         stripe: {
