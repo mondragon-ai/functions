@@ -1,112 +1,27 @@
 import * as express from "express";
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { createDocument, getCollection, getDocument, updateDocument, updateSubcollectionDocumentWithID } from "../../firebase";
+import {
+  deleteDocumentWithID,
+  getCollection,
+  getDocument,
+  updateDocument,
+} from "../../firebase";
 import { handleDataToChange } from "../helpers/firebase";
 import * as crypto from "crypto";
-import { Price } from "../types/customers";
-import { createVariantsFromOptions } from "../helpers/products";
+import {
+  createNewProduct,
+  createVariantsFromOptions,
+  handleNewOptions
+} from "../helpers/products";
+import {
+  Image,
+  NewProduct,
+  Option,
+  Product,
+  Variant
+} from "../types/products";
 
-export interface Image 
-  {
-    id?: string,
-    src?: string, 
-    alt_text?: string,
-    height?: number ,
-    width?: number,
-  }
-
-export interface ProductOptions {
-  options?: [
-    {option1?: string[]},
-    {option2?: string[]},
-    {option3?: string[]},
-  ]
-}
-
-
-
-interface Option {
-  option1?: string[],
-  option2?: string[],
-  option3?: string[]
-}
-
-export interface Variant 
-  {
-    product_id?: string,
-    variant_id?: string,
-    sku?: string,
-    compare_at?: number,
-    price?: number,
-    option1?: string,
-    option2?: string,
-    option3?: string,
-    quantity?: number,
-    status?: boolean,
-    updated_at?: FirebaseFirestore.Timestamp,
-    created_at?: FirebaseFirestore.Timestamp
-    image_url?: string,
-    inventory?: number
-  }
-
-
-export interface Product {
-  id?: string,
-  title?: string,
-  quantity?: number,
-  handle?: string,
-  description?: string,
-  status?: boolean,
-  has_options?: boolean,
-  created_at?: FirebaseFirestore.Timestamp | null,
-  updated_at: FirebaseFirestore.Timestamp | null,
-  has_recurring?: boolean,
-  price?: number,
-  has_discount?: boolean,
-  discounts_eliglble?: string[],
-  taxable?: boolean,
-  requires_shipping?: boolean,
-  images?: Image[],
-  options?: ProductOptions["options"],
-  inventory_polocy?: {
-    over_sold?: true,
-  },
-  dimentations?: {
-    weight?: number,
-    length?: string,
-    width?: string
-  },
-  varaints?: Variant[]
-}
-
-export interface NewProduct {
-  id?: string,
-  title: string,
-  handle: string,
-  description?: string,
-  status: boolean,
-  has_options?: boolean,
-  created_at?: FirebaseFirestore.Timestamp | null,
-  updated_at?: FirebaseFirestore.Timestamp | null,
-  has_recurring?: boolean,
-  price: Price,
-  has_discount?: boolean,
-  discounts_eliglble?: string[],
-  taxable?: boolean,
-  requires_shipping?: boolean,
-  images?: Image[],
-  options?: ProductOptions["options"],
-  inventory_polocy?: {
-    over_sold?: true,
-  },
-  dimentations?: {
-    weight?: number,
-    length?: string,
-    width?: string
-  },
-  variants?: Variant[]
-}
 /**
  * All Product! related routes for the storefront API 
  * @param app 
@@ -131,97 +46,65 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
   });
 
   /**
-   * Create a NEW Product! 
-   * @param Product
+   * Create a NEW Product in the primary DB. 
+   * ? Create product isntance in Stripe/Square?
+   * @param new_data: Product
    * @param FB_MERCHANT_UUID: string
    */
   app.post("/products/create", async (req: express.Request, res: express.Response) => {
     // Response data to update & send back
     let status = 500, 
-    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ",
-    variants: Variant [] = [],
-    PRODUCT_ID: string = "",
-    product: NewProduct = req.body.new_data || null;
-    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID || "";
+    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ";
 
-    try {
-      // Push to primary DB
-      PRODUCT_ID = await createDocument("merchants", FB_MERCHANT_UUID, "products", "", product);
-      status = 200;
-      text = "SUCCES: Product created 🧑🏻‍🍳.  " + "Product id: pro_" + PRODUCT_ID;
+    // Data to send back to client
+    const product: NewProduct = req.body.new_data || null;
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
 
-    } catch (e) {
-      res.status(status).json(text);
+    // new product data sanitized and pushed to primary DB
+    const result = await createNewProduct(FB_MERCHANT_UUID, product);
 
-    };
+    // update 
+    status = result.status;
+    text = result.text;
 
-    const variants_length = product.variants?.length || 0;
-
-    if (variants_length !== 0) {
-
-      product.variants?.forEach((v,i) => {
-        variants.push({
-          ...v,
-          variant_id: "var_" + crypto.randomBytes(10).toString('hex'),
-          product_id: PRODUCT_ID
-        })
-      });
-    }
-
-    try {
-      // Update Product Document in Primar DB 
-      await updateDocument(
-        {
-          created_at: admin.firestore.Timestamp.now(),
-          updated_at: admin.firestore.Timestamp.now(),
-          variants: variants,
-          id: `pro_${PRODUCT_ID}`
-        },
-        "merchants",
-        FB_MERCHANT_UUID,
-        "products",
-        PRODUCT_ID
-      );
-      status = 200;
-      text = "SUCCES: Product created 🧑🏻‍🍳. Product => " + `pro_${PRODUCT_ID}`;
-
-    } catch (e) {
-      res.status(status).json(text);
-    };
     res.status(status).json(text);
 
   });
 
   /**
-   * Update an existing Product
-   * ! Param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
+   * Update an existing Product Param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
    * @param FB_MERCHANT_UUID: string
-   * @param FB_PRODUCT_UUID: string
+   * @param product_uuid: string
+   * @param product_uuid: string
+   * @param update_data: [ ...["key", "value"]]
    */
   app.put("/products/update", async (req: express.Request, res: express.Response) => {
-
+    // status/text to send back to client
     let status = 500, 
-    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ",
-    PRODUCT_DATA: Product,
-    FB_PRODUCT_UUID: string = req.body.product_uuid;
+    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ";
+
+    // Get FB_UUID for product docuemtn
+    let FB_PRODUCT_UUID: string = req.body.product_uuid;
     FB_PRODUCT_UUID = FB_PRODUCT_UUID.substring(4);
 
-    // Req Data: UUIDs
+    // Req Data: UUIDs & data to update
     const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
     const REQUEST_DATA = req.body.update_data;
 
-    // Helper Fn that returns PRODUCT_DATA to push to primary DB
-    PRODUCT_DATA = handleDataToChange(REQUEST_DATA);
+    // Helper fn that santizes input data && returns Product Obj to push to primary DB
+    let PRODUCT_DATA: Product = handleDataToChange(REQUEST_DATA);
+
+    // Update document time
     PRODUCT_DATA = {
       ...PRODUCT_DATA,
-      created_at: admin.firestore.Timestamp.now()
+      updated_at: admin.firestore.Timestamp.now()
     }
 
     try {
-      // Update primary DB
+      // Update docuemtn in primary DB
       await updateDocument(PRODUCT_DATA, "merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
 
-      // update Response
+      // Update response
       status = 200;
       text = "SUCCES: Product updated 🧑🏻‍🍳.  Product Updated => " + FB_PRODUCT_UUID;
 
@@ -233,18 +116,22 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
   });
 
   /**
-   * Add images to an existing PRODUCT_UUID
-   * @param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
+   * Add images to an existing product document from primary DB
+   * TODO: store image in storage bucket & paste URL
    * @param FB_MERCHANT_UUID: string
-   * @param FB_PRODUCT_UUID: string
-   * @param Image
+   * @param product_uuid: string
+   * @param image_data: Image
    */
   app.post("/products/add/images", async (req: express.Request, res: express.Response) => {
     // text & status to send back to client
     let status = 500,
-    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ",
-    IMAGE_DATA: Image[] = [],
-    FB_PRODUCT_UUID: string = req.body.product_uuid || "";
+    text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ";
+
+    // Image Data
+    let IMAGE_DATA: Image[] = [];
+
+    // Get FB_UUID for product document
+    let FB_PRODUCT_UUID: string = req.body.product_uuid || "";
     FB_PRODUCT_UUID = FB_PRODUCT_UUID.substring(4);
 
     // Req Data 
@@ -264,18 +151,16 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
         // Get Images from PRODUCT_UUID_DOC 
         const IMAGES: Image[] = PRODUCT_DATA?.images || []
 
-        // Append to new REQUEST_DATA
+        // Append to Image[] from product document from primary DB
         IMAGE_DATA = [
           ...IMAGES,
         ];
 
+        // Append to NEW Image[] to pusht to primary DB
         IMAGE_DATA.push({
           ...REQUEST_DATA,
           id: "img_" + crypto.randomBytes(10).toString('hex')
         })
-
-
-        console.log(IMAGE_DATA);
 
       } else {
         // Send failed Response
@@ -290,7 +175,7 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
     try {
       // Update primary DB
-      await updateSubcollectionDocumentWithID(
+      await updateDocument(
         {
           images: IMAGE_DATA,
           updated_at: admin.firestore.Timestamp.now()
@@ -307,17 +192,16 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
     } catch (e) {
       res.status(status).json(text  + " TRYING TO UPDATE DOC. PRODUCTS.");
+
     };
-    // non 500 status
     res.status(status).json(text);
 
   });
   /**
-   * Update an existing Product options for Variant![]
-   * @param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
+   * Update an existing Product options for Variant[]
    * @param FB_MERCHANT_UUID: string
-   * @param FB_PRODUCT_UUID: string
-   * @param Product
+   * @param product_uuid: string
+   * @param update_data: Option[]
    */
    app.put("/products/update/options", async (req: express.Request, res: express.Response) => {
     // Default Status & Text for client
@@ -327,14 +211,20 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
     const FB_MERCHANT_UUID = req.body.FB_MERCHANT_UUID;
 
     // Req Data: Product Data to update
-    let OPTIONS_DATA: Option[] = [],
-    // VARIANTS: Variant[] = [],
-    REQUEST_DATA: Option[] = req.body.update_data || null,
-    PRODUCT_DATA: any,
-    FB_PRODUCT_UUID: string = req.body.product_uuid || "";
+    let OPTIONS_DATA: Option[] = [];
+    let REQUEST_DATA: Option[] = req.body.update_data || null;
+
+    // Product Data fetched 
+    let PRODUCT_DATA: any; // ! CAN BE INPUTED
+    // TODO: Create logic to check if fetchign product is necessary
+    // PRODUCT_OPTIONS: Options[] = []
+
+    // Get FB-UUID for the 
+    let FB_PRODUCT_UUID: string = req.body.product_uuid || "";
     FB_PRODUCT_UUID = FB_PRODUCT_UUID.substring(4);
 
     try {
+      // ? CHECK IF NEED PRODUCT FETHCED FROM INPUT
       // Get PRODUCT_UUID product document
       PRODUCT_DATA = await getDocument(
         "merchants",
@@ -343,19 +233,6 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
         FB_PRODUCT_UUID
       );
       OPTIONS_DATA = PRODUCT_DATA?.options || [];
-      // VARIANTS = PRODUCT_DATA?.variants || [];
-
-      if (PRODUCT_DATA) {
-
-        // Append to DB options
-        REQUEST_DATA.forEach((v, i) => {
-          OPTIONS_DATA[i] = REQUEST_DATA[i]
-        });
-
-      } else {
-        // Send failed Response
-        res.status(422).json("ERROR: Likely issue with fetching Product! -- Check Logs 👺. ");
-      }
       
     } catch (e) {
       // Error
@@ -363,36 +240,47 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
       
     }
 
-    // if option1 then [variants * options in option1]
-    const result = createVariantsFromOptions(
-      PRODUCT_DATA,
-      OPTIONS_DATA[0]?.option1 || [],
-      OPTIONS_DATA[1]?.option2 || [],
-      OPTIONS_DATA[2]?.option3 || [],
-    );
+    // Variant List to push to DB from the new Options
+    let variants: Variant[] = [];
 
-    // for each variant check if variant.option1 == one 
-    // if option1 && option2 then [variants * options in option1] * [variants * options in option2]
-    // if option1 && option2 && option3 then [variants * options in option1] * [variants * options in option2] * [variants * options in option3]
+    // If options dont exist create single variant
+    if (!PRODUCT_DATA.options) {
 
+      // if option1 then [variants * options in option1]
+      const result = createVariantsFromOptions(
+        PRODUCT_DATA,
+        REQUEST_DATA[0]?.option1 || [],
+        REQUEST_DATA[1]?.option2 || [],
+        REQUEST_DATA[2]?.option3 || [],
+      );
+      variants = result;
+
+    } else { // Handle new options submitted || create new
+      const result = handleNewOptions(
+        PRODUCT_DATA,
+        REQUEST_DATA,
+        OPTIONS_DATA,
+      );
+      variants = result;
+
+    }
     try {
 
       if (status != 422) {
+        console.log(variants)
         // Update primary DB
         await updateDocument(
           {
-            options: OPTIONS_DATA,
-            varaints: result
+            options: REQUEST_DATA,
+            variants: variants
           },
-          "merchants",
-          FB_MERCHANT_UUID,
-          "products",
-          FB_PRODUCT_UUID
+          "merchants", FB_MERCHANT_UUID,
+          "products", FB_PRODUCT_UUID
         );
 
         // update Response
         status = 200;
-        text = "SUCCES: Product options updated 🧑🏻‍🍳.  ";
+        text = "SUCCES: Product options updated 🧑🏻‍🍳.  =>  pro_" + FB_PRODUCT_UUID;
 
       }
     } catch (e) {
@@ -405,18 +293,10 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
 
   /**
    * Update an existing Product variant for Variant![]
-   * @param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
    * @param FB_MERCHANT_UUID: string
-   * @param FB_PRODUCT_UUID: string
-   * @param inventory: string
-   * @param image_url: string
-   * @param title: string
-   * @param option1: string
-   * @param option2: string
-   * @param option3: string
-   * @param sku: string
-   * @param status: string
-   * @param price: number
+   * @param product_uuid: string
+   * @param variant_uuid: string
+   * @param update_data: Variant
    */
    app.put("/products/update/variants", async (req: express.Request, res: express.Response) => {
     // Default Status & Text for client
@@ -426,41 +306,68 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
     const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
     const variant_uuid: string = req.body.variant_uuid;
 
-    // Req Data: Product Data to update
-    let VARIANTS_DATA: Variant[] = [],
-    REQUEST_DATA: Variant = req.body.update_data || null,
-    FB_PRODUCT_UUID: string = req.body.product_uuid || "";
+    // Get the FB_UUID for the product document
+    let FB_PRODUCT_UUID: string = req.body.product_uuid || "";
     FB_PRODUCT_UUID = FB_PRODUCT_UUID.substring(4);
 
+    // Variant[] to be pushed to the primary DB || from Client
+    let VARIANTS_DATA: Variant[] = [];
+
+    // Req Data: Product Data to update
+    let REQUEST_DATA: Variant = req.body.update_data || null;
+
+    //TODO: Check if fetching is necessary
     try {
-      // Get PRODUCT_UUID product document
+      // Get product document
       const PRODUCT_DATA = await getDocument("merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
+
+
       VARIANTS_DATA = PRODUCT_DATA?.variants || []
 
-      VARIANTS_DATA = VARIANTS_DATA.filter((v,i) => {
-        return v.variant_id != variant_uuid
-      });
-
-      VARIANTS_DATA.push({
-        ...REQUEST_DATA,
-        variant_id: variant_uuid
-      })
-      
     } catch (e) {
       // Error
       res.status(status).json(text + " TRYING TO FETCH DOC. PRODUCTS.");
       
     }
 
+    let index: number = 0
+    let variant: Variant = {};
+
+    // Find Var w/ uuid from Varaint[]
+    VARIANTS_DATA.forEach((v,i) => {
+      if (v.variant_id == variant_uuid) {
+        variant = {
+          ...v
+        }
+        index = i;
+
+       console.log(" INDEX: ",index);
+      } else {}
+    });
+
+    // Replace index with updated + old info
+    VARIANTS_DATA[index] = {
+      ...variant,
+      ...REQUEST_DATA,
+      variant_id: variant_uuid
+    }
+
     try {
 
       if (status != 422) {
         // Update primary DB
-        await updateSubcollectionDocumentWithID({variants: VARIANTS_DATA}, "merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
+        await updateDocument(
+          {
+            updated_at: admin.firestore.Timestamp.now(),
+            variants: VARIANTS_DATA
+          },
+          "merchants", FB_MERCHANT_UUID,
+          "products", FB_PRODUCT_UUID);
 
         // update Response
         status = 200;
-        text = "SUCCES: Product options updated 🧑🏻‍🍳.  ";
+        text = "SUCCES: Product options updated 🧑🏻‍🍳.  => pro_" 
+              + FB_PRODUCT_UUID + " && var_" + variant_uuid;
 
       }
     } catch (e) {
@@ -471,84 +378,140 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
   });
 
   /**
+   * ! SHOULD BE HANDLED WITH OPTIONS OR UPDATE
    * Add an NEW Product Variant for Variant![]
    * @param NEEDS TO BE passed as an array with the key: vlaue pair inside another array: [["title": "VIP CLub"], ...[...]]
    * @param FB_MERCHANT_UUID: string
    * @param FB_PRODUCT_UUID: string
-   * @param inventory: string
-   * @param image_url: string
-   * @param title: string
-   * @param option1: string
-   * @param option2: string
-   * @param option3: string
-   * @param sku: string
-   * @param status: string
-   * @param price: number
+   * @param update_data: Variant
    */
    app.post("/products/add/variant", async (req: express.Request, res: express.Response) => {
-    let status = 500, text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ";
+    // let status = 500, text = "ERROR: Likely internal -- Check Logs 🤦🏻‍♂️. ";
     // Req Data: UUIDs
-    const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
-    const FB_PRODUCT_UUID = "uC1REi9qh2Ku1orEbARL";
+    // const FB_MERCHANT_UUID = "QilaBD5FGdnF9iX5K9k7";
+    // const FB_PRODUCT_UUID = "uC1REi9qh2Ku1orEbARL";
 
-    // Req Data: Product Data to update
-    let VARIANTS_DATA: Variant[] = []
-    let REQUEST_DATA: Variant[] = [
-      {
-        compare_at: 900,
-        price: 500,
-        sku: "TESTSKU-UPDATE",
-        variant_id: "var_08034098",
-        // status: "OUT_OF_STOCK",
-        updated_at: admin.firestore.Timestamp.now(),
-        image_url: "",
-        inventory: 1000, 
-        option1: "M",
-        option2: "B",
-        option3: "N"
-      }
-    ];
+    // // Req Data: Product Data to update
+    // let VARIANTS_DATA: Variant[] = []
+    // let REQUEST_DATA: Variant[] = [
+    //   {
+    //     compare_at: 900,
+    //     price: 500,
+    //     sku: "TESTSKU-UPDATE",
+    //     variant_id: "var_08034098",
+    //     // status: "OUT_OF_STOCK",
+    //     updated_at: admin.firestore.Timestamp.now(),
+    //     image_url: "",
+    //     inventory: 1000, 
+    //     option1: "M",
+    //     option2: "B",
+    //     option3: "N"
+    //   }
+    // ];
+
+    // try {
+    //   // Get PRODUCT_UUID product document
+    //   const PRODUCT_DATA = await getDocument("merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
+    //   VARIANTS_DATA = PRODUCT_DATA?.variants || []
+
+    //   if (PRODUCT_DATA) {
+
+    //     // Append to DB list of Variants!
+    //     VARIANTS_DATA = [
+    //       ...VARIANTS_DATA,
+    //       ...REQUEST_DATA,
+    //     ]
+
+    //   } else {
+    //     // Send failed Response
+    //     res.status(422).json("ERROR: Likely issue with fetching Product! -- Check Logs 👺. ");
+    //   }
+      
+    // } catch (e) {
+    //   // Error
+    //   res.status(status).json(text + " TRYING TO FETCH DOC. PRODUCTS.");
+      
+    // }
+
+    // try {
+
+    //   if (status != 422) {
+    //     // Update primary DB
+    //     await updateSubcollectionDocumentWithID({variants: VARIANTS_DATA}, "merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
+
+    //     // update Response
+    //     status = 200;
+    //     text = "SUCCES: Product options updated 🧑🏻‍🍳.  ";
+
+    //   }
+    // } catch (e) {
+    //   res.status(status).json(text);
+    // };
+    // res.status(status).json(text);
+
+  });
+
+  app.delete("/products/delete/variant", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likely internal - Check product logs 🤕. ";
+
+    // Req uuid used to delete document 
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+    const FB_PRODUCT_UUID: string = req.body.product_uuid;
+    const var_uuid: string = req.body.variant_uuid;
+
+    let product: FirebaseFirestore.DocumentData | undefined = {};
+    let variants: Variant[] = [];
 
     try {
-      // Get PRODUCT_UUID product document
-      const PRODUCT_DATA = await getDocument("merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
-      VARIANTS_DATA = PRODUCT_DATA?.variants || []
-
-      if (PRODUCT_DATA) {
-
-        // Append to DB list of Variants!
-        VARIANTS_DATA = [
-          ...VARIANTS_DATA,
-          ...REQUEST_DATA,
-        ]
-
-      } else {
-        // Send failed Response
-        res.status(422).json("ERROR: Likely issue with fetching Product! -- Check Logs 👺. ");
-      }
-      
+      // Delete document in primary DB
+      product = await getDocument("merchants",FB_MERCHANT_UUID,"products",FB_PRODUCT_UUID.substring(4));
     } catch (e) {
-      // Error
-      res.status(status).json(text + " TRYING TO FETCH DOC. PRODUCTS.");
-      
+      text = text + " Fetching document from primary DB"
     }
 
+    if (product != undefined) {
+      variants = product.variants;
+
+      variants = variants?.filter((v,i) => {
+        return var_uuid != v.variant_id
+      })
+      
+      status = 200;
+      text = "SUCCESS: Product variant deleted. ⛹🏻‍♀️ " 
+      +  FB_PRODUCT_UUID + " New variant total: " + variants?.length ; 
+    }
+    
+    const product_updated: Product = {
+      variants: variants,
+      updated_at: admin.firestore.Timestamp.now()
+    }
     try {
-
-      if (status != 422) {
-        // Update primary DB
-        await updateSubcollectionDocumentWithID({variants: VARIANTS_DATA}, "merchants", FB_MERCHANT_UUID, "products", FB_PRODUCT_UUID);
-
-        // update Response
-        status = 200;
-        text = "SUCCES: Product options updated 🧑🏻‍🍳.  ";
-
-      }
+      await updateDocument(product_updated,
+         "merchants", FB_MERCHANT_UUID,
+         "products", FB_PRODUCT_UUID.substring(4))
     } catch (e) {
-      res.status(status).json(text);
-    };
-    res.status(status).json(text);
+      text = text + " Deleting variant from document in primary DB"
+    }
 
+    res.status(status).json(text);
+  } );
+
+
+  app.delete("/products/delete", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likely internal - Check product logs 🤕. ";
+
+    // Req uuid used to delete document 
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+    const FB_PRODUCT_UUID: string = req.body.product_uuid;
+
+    try {
+      // Delete document in primary DB
+      await deleteDocumentWithID("merchants",FB_MERCHANT_UUID,"products",FB_PRODUCT_UUID.substring(4));
+    } catch (e) {
+      text = text + " Deleting document from primary DB"
+    }
+
+    res.status(status).json(text);
   });
 
   /**
