@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 import { 
   createDocument,
   deleteDocumentWithID,
+  getCollection,
   getDocument,
   updateDocument,
   updateSubcollectionDocumentWithID
@@ -33,6 +34,50 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     
     res.status(status).json(text);
   });
+
+  /**
+   * 
+   */
+  app.post("/carts", async (req: express.Request, res: express.Response) => {
+    let status = 500, text = "ERROR: Likely internal -- Check Logs 😓. ";
+
+    // UUIDs
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+    const FB_CART_UUID: string = req.body.cart_uuid || "";
+
+
+    // data to send back
+    let response: any;
+
+    try {
+
+      if (FB_CART_UUID != "") {
+        response = await getDocument("merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID.substring(4));
+
+      } else {
+        const result = await getCollection("merchants", FB_MERCHANT_UUID, "carts");
+        let cartList: Cart[] = [];
+
+        result.forEach(v => {
+          cartList = [
+            ...cartList,
+            {...v.data()}
+          ]
+        });
+
+        response = cartList;
+      }
+      status = 200;
+      text = "SUCCESS: Document reteived 🙌🏼. ";
+    } catch (e) {
+      text = text + " Getting Doc"
+    }
+    console.log(response)
+    
+    res.status(status).json({m: text, d: response});
+  });
+
+
   /**
    * Create a NEW Cart! 
    * @param FB_MERCHANT_UUID: string
@@ -48,7 +93,9 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
     const line_items: LineItem[] = REQUEST_DATA.line_items;
 
-
+    console.log(line_items)
+    console.log(REQUEST_DATA)
+    console.log(REQUEST_DATA)
     // Req Data To Push to primary DB
     const cart = {
       ...REQUEST_DATA,
@@ -70,14 +117,15 @@ export const cartRoutes = async (app: express.Router, db: FirebaseFirestore.Fire
     try {
       await updateSubcollectionDocumentWithID({
         id: `car_${FB_CART_UUID}`,
-      }, "merchants", FB_MERCHANT_UUID, "carts", FB_CART_UUID);
+      }, "merchants", FB_MERCHANT_UUID, 
+      "carts", FB_CART_UUID);
       console.log(FB_CART_UUID);
       status = 200, text = "SUCCESS: New cart created 🔥.  car_" + FB_CART_UUID;
     } catch (e) {
       res.status(status).json(text);
     }
+    res.status(status).json({m:text, d: FB_CART_UUID });
 
-    res.status(status).json(text);
    });
 
   /**

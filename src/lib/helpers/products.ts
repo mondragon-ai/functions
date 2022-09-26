@@ -13,7 +13,7 @@ import { createDocument, updateDocument } from "../../firebase";
  * @returns Variant[]
  */
 export const createVariantsFromOptions = (
-  product: Product,
+  product: Product | NewProduct,
   options1?: string[],
   options2?: string[],
   options3?: string[],

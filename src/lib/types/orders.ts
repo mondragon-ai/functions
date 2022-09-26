@@ -31,7 +31,8 @@ export interface LineItem {
   has_discount?: boolean,
   isHighRisk?: boolean,
   applied_discount?: number | 0,
-  quantity: number | 0
+  quantity: number | 0,
+  image_url?: string
 } 
 
 export interface Cart {

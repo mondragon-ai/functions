@@ -92,7 +92,7 @@ export interface NewProduct {
   taxable?: boolean,
   requires_shipping?: boolean,
   images?: Image[],
-  options?: ProductOptions["options"],
+  options: ProductOptions["options"],
   inventory_polocy?: {
     over_sold?: true,
   },
