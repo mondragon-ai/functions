@@ -20,7 +20,7 @@ variant_ids?: LineItem[],
 customer_tags?: string[],
 }
 
-export interface Discount {
+export type  Discount = {
     value?: number,
     title?: string,
     id?: string,

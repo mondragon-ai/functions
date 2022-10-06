@@ -12,6 +12,8 @@ import { EcomReturn } from "../types/stripe";
 export const handleDataToChange = (REQUEST_DATA: any[][]): any => {
   let data: Customer = {};
 
+  console.log(REQUEST_DATA)
+
   // loop through data to push and create customer object
   REQUEST_DATA.forEach((v, i) => {
     data = {

@@ -8,6 +8,7 @@ import { cartRoutes } from "./lib/routes/carts";
 import { discountRoutes } from "./lib/routes/discounts";
 import { paymentRoutes } from "./lib/routes/payments";
 import { draftOrderRoutes } from "./lib/routes/draft_orders";
+import { collectionRoutes } from "./lib/routes/collections";
 
 export const rest = (db: FirebaseFirestore.Firestore) => {
 
@@ -37,7 +38,8 @@ export const rest = (db: FirebaseFirestore.Firestore) => {
     cartRoutes(app, db);
     discountRoutes(app);
     paymentRoutes(app);
-    draftOrderRoutes(app)
+    draftOrderRoutes(app);
+    collectionRoutes(app);
  
     return app
 }

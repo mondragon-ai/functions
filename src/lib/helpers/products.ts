@@ -171,6 +171,8 @@ export const checkExistingOptions = (
   let new_options1 = NEW_option[0]?.option1 || [];
   let new_options2 = NEW_option[1]?.option2 || [];
   let new_options3 = NEW_option[2]?.option3 || [];
+  console.log(new_options1);
+  console.log(new_options2);
   console.log(new_options3);
 
   // All options options present, santitize current Variant[] against OLD & NEW options and update Variant[] to return

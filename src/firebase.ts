@@ -253,15 +253,16 @@ return docRef;
   code: string,
   merchant_uuid: string,
 ) => {
-  let DISCOUNT_UUID: string = "";
+  // let DISCOUNT_UUID: string = "";
   const docs = await db.collection("merchants").doc(merchant_uuid).collection("discounts").where("code", "==", code).get();
 
   //TODO: Consier using logic to control ONLY one store instance
   console.log(docs.size);
+  console.log(docs);
 
-  docs.forEach((d)=> {console.log(d.data()); DISCOUNT_UUID = d.id;})
+  // docs.forEach((d)=> {console.log(d.data()); DISCOUNT_UUID = d.id;})
 
-  return DISCOUNT_UUID;
+  return docs;
 
 }
 
@@ -282,13 +283,16 @@ return docRef;
 
   console.log(collection, documentID, subCollection, subDocumentID);
   if (subCollection != "") {
-    await db.collection(collection)
+    console.log("SUB COLL");
+    const docs = await db.collection(collection)
     .doc(documentID)
     .collection(subCollection || "")
     .doc(subDocumentID || "")
     .delete();
+    console.log(docs);
 
   } else {
+    console.log("COLL");
     const docs = await db.collection(collection)
     .doc(documentID)
     .collection(subCollection || "")
@@ -330,6 +334,26 @@ export const searchAndGetWithKey = async (
 
   return document_id;
 };
+
+export const getProductsWithTags = async (
+  search_params: SearchParams,
+  collection: string,
+  document?: string,
+  subCollection?: string,
+) => {
+
+
+  const collectionRef: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await db
+  .collection(collection)
+  .doc(document|| "")
+  .collection(subCollection || "")
+  .where(search_params.key, "array-contains", search_params.value)
+  .get()
+
+
+  return collectionRef;
+};
+
 
 // TODO: Initialize Storage Bucket
 // TODO: Export Storage Bucket 

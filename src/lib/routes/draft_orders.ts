@@ -127,7 +127,7 @@ export const draftOrderRoutes = async (app: express.Router) => {
 
     const result = await createStripeCustomer(StripeCustomer);
 
-    console.log(result);
+    // console.log(result);
 
     status = result.status || status
     if (status >= 300) {

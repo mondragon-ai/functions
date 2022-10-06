@@ -94,6 +94,8 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
     // Helper fn that santizes input data && returns Product Obj to push to primary DB
     let PRODUCT_DATA: Product = handleDataToChange(REQUEST_DATA);
 
+    console.log(PRODUCT_DATA)
+
     // Update document time
     PRODUCT_DATA = {
       ...PRODUCT_DATA,
@@ -239,6 +241,7 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
       res.status(status).json(text + " TRYING TO FETCH DOC. PRODUCTS.");
       
     }
+    console.log(req.body);
 
     // Variant List to push to DB from the new Options
     let variants: Variant[] = [];
@@ -272,7 +275,8 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
         await updateDocument(
           {
             options: REQUEST_DATA,
-            variants: variants
+            variants: variants,
+            has_options: true,
           },
           "merchants", FB_MERCHANT_UUID,
           "products", FB_PRODUCT_UUID
@@ -507,8 +511,10 @@ export const productRoutes = async (app: express.Router, db: FirebaseFirestore.F
     try {
       // Delete document in primary DB
       await deleteDocumentWithID("merchants",FB_MERCHANT_UUID,"products",FB_PRODUCT_UUID.substring(4));
+      text = "SUCCESS: deleted document 🚮 => " + FB_PRODUCT_UUID;
+      status = 200;
     } catch (e) {
-      text = text + " Deleting document from primary DB"
+      text = text + " Deleting document from primary DB";
     }
 
     res.status(status).json(text);

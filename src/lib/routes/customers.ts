@@ -1,7 +1,9 @@
 import * as admin from "firebase-admin";
+import * as functions from "firebase-functions";
 import * as express from "express";
 import {
     deleteDocumentWithID,
+    getCollection,
     getDocument,
     searchAndGetWithKey,
     updateDocument 
@@ -227,6 +229,68 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
   });
 
   /**
+   * Fetch Customer | Customer[]
+   * @param FB_MERCHANT_UUID: string
+   * @param FB_CUSTOMER_UUI?: string
+   */
+   app.post("/customers", async (req: express.Request, res: express.Response) => {
+    // Response data to update & send back
+    let status = 500, text = "ERROR: Likley internal -- Check Logs. 😅. ";
+
+    // Req data for update
+    const FB_MERCHANT_UUID: string = req.body.FB_MERCHANT_UUID;
+
+    // Get FB_UUID for document 
+    let FB_CUSTOMER_UUID: string = req.body.customer_uuid || ""; 
+    FB_CUSTOMER_UUID = FB_CUSTOMER_UUID.substring(4);
+
+    console.log(" ==> " + FB_MERCHANT_UUID);
+    console.log(" ==> " + FB_CUSTOMER_UUID);
+    
+
+    // Collection of Customer 
+    let Customers: Customer[] = [];
+
+    try {
+      // get document
+      if (FB_CUSTOMER_UUID != "" && FB_CUSTOMER_UUID != undefined) {
+        console.log(" ==> " + "NO_ID");
+        functions.logger.info(FB_CUSTOMER_UUID);
+        const list = await getCollection(
+          "merchants", FB_MERCHANT_UUID, "customers"
+        );
+
+        if (!list.empty) {
+          list.forEach(customer => {
+            functions.logger.info(customer);
+            Customers = [
+              ...Customers,
+              customer
+            ]
+          });
+        };
+      } else {
+        console.log(" ==> " + "ID EXISTS" + FB_CUSTOMER_UUID);
+        // get collection 
+        const result = await getDocument(
+          "merchants", FB_MERCHANT_UUID,
+          "customers", FB_CUSTOMER_UUID
+        );
+        functions.logger.info(result)
+        if (result != undefined){
+          Customers = [result];
+        };
+      }
+      status = 200, 
+      text = "SUCCESS: Customer deleted. 💀 " + 
+      FB_CUSTOMER_UUID;
+    } catch (e) {
+      res.status(status).json(text)
+    }
+    res.status(status).json({m: text, d: Customers});
+  });
+
+  /**
    * Update customer
    * @param FB_MERCHANT_UUID
    * @param FB_CUSTOMER_UUID
@@ -248,9 +312,9 @@ export const customersRoutes = async (app: express.Router, db: FirebaseFirestore
       status = 200, text = "SUCCESS: Customer deleted. 💀 " + FB_CUSTOMER_UUID;
 
     } catch (e) {
-      res.status(status).json(text)
+      res.status(status).json(text);
     }
-    res.status(status).json(text)
+    res.status(status).json({m: text})
   });
 
 };
